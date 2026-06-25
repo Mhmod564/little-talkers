@@ -1,7 +1,7 @@
 /* ============================================================
-   Little Talkers — MVP for a Speech & Language Therapy Clinic
-   Vanilla JS SPA. Data persisted in localStorage.
-   Roles: therapist (main | doctor) | parent (read-only)
+   Little Talkers — Speech & Language Therapy Clinic (MVP)
+   Vanilla JS SPA. localStorage persistence. Trilingual: he / ar / en.
+   Roles: therapist (main | doctor + permissions) | parent (read-only + chat)
    ============================================================ */
 (function () {
   "use strict";
@@ -23,7 +23,7 @@
     search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
     folder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
     chevDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
-    arrowR: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+    arrowBack: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
     edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>',
     trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
     plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
@@ -48,108 +48,428 @@
     shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>',
     chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg>',
     sort: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5h10M11 9h7M11 13h4M3 17l3 3 3-3M6 18V4"/></svg>',
+    video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>',
+    play: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>',
+    key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>',
+    globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
   };
+
+  /* ============================================================
+     i18n
+     ============================================================ */
+  const LANGS = [
+    { code: "he", native: "עברית", short: "עב" },
+    { code: "ar", native: "العربية", short: "ع" },
+    { code: "en", native: "English", short: "EN" },
+  ];
+  const LANG_KEY = "littletalkers.lang";
+  let L = 0;
+
+  /* dictionary: key -> [he, ar, en] */
+  const S = {
+    subLogin: ["מדברים קטנים", "متحدثون صغار", "Little Talkers"],
+    subTher: ["לוח המטפל", "لوحة الأخصائي", "Therapist Panel"],
+    subParent: ["פורטל ההורים", "بوابة أولياء الأمور", "Parents Portal"],
+
+    heroTitle: ["טיפול מקצועי בשפה ובדיבור לילדים שלכם", "رعاية متخصّصة لنطق وتخاطب أطفالكم", "Professional speech & language care for your children"],
+    heroDesc: ["פלטפורמה פשוטה שמחברת בין המטפל וההורים במקום אחד, למעקב נוח אחר התקדמות הטיפול ובשקט נפשי.", "منصة بسيطة تجمع الأخصائي وأولياء الأمور في مكان واحد لمتابعة تقدم الجلسات العلاجية بسهولة وطمأنينة.", "A simple platform that brings the therapist and parents together in one place to follow therapy progress with ease and peace of mind."],
+    welcomeBack: ["ברוך שובך", "أهلاً بعودتك", "Welcome back"],
+    loginSub: ["התחבר כדי להמשיך לחשבון שלך", "سجّل الدخول للمتابعة إلى حسابك", "Sign in to continue to your account"],
+    roleTher: ["מטפל", "الأخصائي", "Therapist"],
+    roleParent: ["הורה", "ولي الأمر", "Parent"],
+    username: ["שם משתמש", "اسم المستخدم", "Username"],
+    password: ["סיסמה", "كلمة المرور", "Password"],
+    phUsername: ["הזן שם משתמש", "أدخل اسم المستخدم", "Enter username"],
+    btnLogin: ["התחברות", "تسجيل الدخول", "Sign in"],
+    demoTher: ["<b>חשבון לדוגמה למטפל:</b><br>משתמש: <b>doctor</b> — סיסמה: <b>1234</b>", "<b>حساب تجريبي للأخصائي:</b><br>المستخدم: <b>doctor</b> — كلمة المرور: <b>1234</b>", "<b>Demo therapist account:</b><br>User: <b>doctor</b> — Password: <b>1234</b>"],
+    demoParent: ["<b>חשבון לדוגמה להורה:</b><br>משתמש: <b>ahmad</b> — סיסמה: <b>1234</b>", "<b>حساب تجريبي لولي الأمر:</b><br>المستخدم: <b>ahmad</b> — كلمة المرور: <b>1234</b>", "<b>Demo parent account:</b><br>User: <b>ahmad</b> — Password: <b>1234</b>"],
+    errLogin: ["פרטי ההתחברות שגויים. ודא את שם המשתמש והסיסמה.", "بيانات الدخول غير صحيحة. تأكد من اسم المستخدم وكلمة المرور.", "Invalid credentials. Check your username and password."],
+
+    nDash: ["לוח בקרה", "لوحة التحكم", "Dashboard"],
+    nPatients: ["מטופלים", "المتعالجين", "Patients"],
+    nSessions: ["פגישות קרובות", "الجلسات القادمة", "Upcoming Sessions"],
+    nRecordings: ["הקלטות", "التسجيلات", "Recordings"],
+    nReports: ["דוחות וקבצים", "التقارير والملفات", "Reports & Files"],
+    nLog: ["יומן פעילות", "سجل النشاط", "Activity Log"],
+    nDoctors: ["צוות מטפלים", "فريق الأطباء", "Therapists"],
+    nAdd: ["הוספת מטופל", "إضافة متعالج", "Add Patient"],
+    nLogout: ["התנתקות", "تسجيل الخروج", "Log out"],
+    nMyChild: ["תיק הילד שלי", "ملف طفلي", "My Child"],
+    nChat: ["צ׳אט עם המטפל", "محادثة المعالج", "Chat with Therapist"],
+
+    hello: ["שלום", "مرحباً", "Hello"],
+    titleProfile: ["תיק המטופל", "ملف المتعالج", "Patient File"],
+
+    stTotal: ["סה״כ מטופלים", "إجمالي المتعالجين", "Total Patients"],
+    stTotalFoot: ["כל המטופלים", "جميع المتعالجين", "All patients"],
+    stUpcomingFoot: ["פגישות מתוזמנות", "جلسات مجدولة", "Scheduled"],
+    stRecFoot: ["הקלטות וידאו", "تسجيلات فيديو", "Video recordings"],
+    stRecEmpty: ["אין הקלטות עדיין", "لا توجد تسجيلات بعد", "No recordings yet"],
+    stReportsFoot: ["קבצים שהועלו", "ملفات مرفوعة", "Uploaded files"],
+    tipTitle: ["טיפ", "ملاحظة", "Tip"],
+    tipText: ["אל תשכח להוסיף הערות אחרי כל פגישה כדי לעקוב אחר התקדמות המטופל.", "لا تنسَ إضافة ملاحظات بعد كل جلسة لمتابعة تقدّم المتعالج.", "Remember to add notes after each session to track the patient's progress."],
+
+    phSearchPatient: ["חיפוש מטופל...", "ابحث عن متعالج...", "Search patient..."],
+    phSearchNameDiag: ["חיפוש לפי שם או אבחנה...", "ابحث بالاسم أو التشخيص...", "Search by name or diagnosis..."],
+    cName: ["שם", "الاسم", "Name"],
+    cAge: ["גיל", "العمر", "Age"],
+    cDiagnosis: ["אבחנה", "التشخيص", "Diagnosis"],
+    cDoctor: ["מטפל אחראי", "الطبيب المعالج", "Therapist"],
+    cLast: ["פגישה אחרונה", "آخر جلسة", "Last Session"],
+    cProgress: ["התקדמות", "التقدم", "Progress"],
+    cActions: ["פעולות", "الإجراءات", "Actions"],
+    years: ["שנים", "سنوات", "yrs"],
+    allDoctors: ["כל המטפלים", "كل الأطباء", "All therapists"],
+    allDiag: ["כל האבחנות", "كل التشخيصات", "All diagnoses"],
+    allPatients: ["כל המטופלים", "كل المتعالجين", "All patients"],
+    allKinds: ["כל הסוגים", "كل الأنواع", "All types"],
+    sortRecent: ["הפגישה האחרונה", "الأحدث جلسة", "Most recent"],
+    sortHigh: ["התקדמות גבוהה", "الأعلى تقدماً", "Highest progress"],
+    sortLow: ["התקדמות נמוכה", "الأقل تقدماً", "Lowest progress"],
+    sortName: ["שם (א-ת)", "الاسم", "Name (A-Z)"],
+    clear: ["ניקוי", "مسح", "Clear"],
+    emptyNoPatients: ["אין מטופלים עדיין. התחל בהוספת מטופל חדש.", "لا يوجد متعالجون بعد. ابدأ بإضافة متعالج جديد.", "No patients yet. Add your first patient."],
+    emptyNoMatch: ["אין תוצאות תואמות לסינון.", "لا توجد نتائج مطابقة للفلاتر.", "No results match your filters."],
+    showMore: ["הצג עוד", "عرض المزيد", "Show more"],
+    ttOpen: ["פתיחת תיק", "فتح الملف", "Open file"],
+    ttEdit: ["עריכה", "تعديل", "Edit"],
+    ttDelete: ["מחיקה", "حذف", "Delete"],
+    ttDownload: ["הורדה", "تنزيل", "Download"],
+
+    btnSchedule: ["תזמון פגישה", "جدولة جلسة", "Schedule Session"],
+    emptyNoUpcoming: ["אין פגישות קרובות מתוזמנות.", "لا توجد جلسات قادمة مجدولة.", "No upcoming sessions scheduled."],
+    sesPast: ["פגישות קודמות", "جلسات سابقة", "Past Sessions"],
+    sesDefault: ["פגישת טיפול", "جلسة علاجية", "Therapy session"],
+    phSearchSession: ["חיפוש פגישה...", "ابحث عن جلسة...", "Search session..."],
+
+    recTitle: ["הקלטות פגישות", "تسجيلات الجلسات", "Session Recordings"],
+    btnAddRec: ["הוספת הקלטה", "إضافة تسجيل", "Add Recording"],
+    emptyNoRec: ["אין הקלטות עדיין. הוסף קישור לוידאו של פגישה מוקלטת.", "لا توجد تسجيلات بعد. أضف رابط فيديو لجلسة مسجلة.", "No recordings yet. Add a video link for a recorded session."],
+    emptyRecMatch: ["אין הקלטות תואמות לסינון.", "لا توجد تسجيلات مطابقة.", "No recordings match your filters."],
+    phSearchRec: ["חיפוש הקלטה...", "ابحث عن تسجيل...", "Search recording..."],
+    recDefault: ["פגישה מוקלטת", "جلسة مسجلة", "Recorded session"],
+    btnWatch: ["צפייה", "مشاهدة", "Watch"],
+    recCount: ["{0} הקלטות", "{0} تسجيلات", "{0} recordings"],
+
+    emptyNoFiles: ["אין קבצים שהועלו עדיין.", "لا توجد ملفات مرفوعة بعد.", "No files uploaded yet."],
+    emptyFileMatch: ["אין קבצים תואמים לסינון.", "لا توجد ملفات مطابقة.", "No files match your filters."],
+    phSearchFile: ["חיפוש קובץ...", "ابحث عن ملف...", "Search file..."],
+    filesCount: ["{0} קבצים", "{0} ملفات", "{0} files"],
+
+    emptyNoEvents: ["אין אירועים תואמים.", "لا توجد أحداث مطابقة.", "No matching events."],
+    phSearchLog: ["חיפוש ביומן...", "ابحث في السجل...", "Search log..."],
+    kNote: ["הערות", "ملاحظات", "Notes"],
+    kProgress: ["התקדמות", "التقدم", "Progress"],
+    kPlan: ["תוכניות", "الخطط", "Plans"],
+    kFile: ["קבצים", "ملفات", "Files"],
+    kPatient: ["מטופלים", "المتعالجين", "Patients"],
+    kRemove: ["מחיקות", "حذف", "Deletions"],
+    kSession: ["פגישות", "الجلسات", "Sessions"],
+    kDoctor: ["מטפלים", "الأطباء", "Therapists"],
+    kPerms: ["הרשאות", "الصلاحيات", "Permissions"],
+    kRecording: ["הקלטות", "التسجيلات", "Recordings"],
+    kMessage: ["הודעות", "الرسائل", "Messages"],
+
+    btnAddDoctor: ["הוספת מטפל", "إضافة طبيب", "Add Therapist"],
+    phSearchDoctor: ["חיפוש מטפל...", "ابحث عن طبيب...", "Search therapist..."],
+    roleMain: ["ראשי", "رئيسي", "Main"],
+    roleDoc: ["מטפל", "طبيب", "Therapist"],
+    lblUser: ["משתמש", "المستخدم", "User"],
+    unitPatients: ["מטופלים", "متعالجين", "patients"],
+    permNone: ["ללא הרשאות", "بدون صلاحيات", "No permissions"],
+    onlyMain: ["עמוד זה זמין למטפל הראשי בלבד.", "هذه الصفحة متاحة للطبيب الرئيسي فقط.", "This page is available to the main therapist only."],
+    permViewAll: ["צפייה בכל המטופלים", "عرض جميع المتعالجين", "View all patients"],
+    permManage: ["ניהול מטופלים, הערות וקבצים", "إدارة المتعالجين والملاحظات والملفات", "Manage patients, notes & files"],
+    permRec: ["ניהול הקלטות", "إدارة التسجيلات", "Manage recordings"],
+    permChat: ["צ׳אט עם הורים", "محادثة أولياء الأمور", "Chat with parents"],
+
+    back: ["חזרה לרשימה", "رجوع إلى القائمة", "Back to list"],
+    actChatTher: ["צ׳אט עם המטפל", "محادثة المعالج", "Chat with therapist"],
+    actChat: ["צ׳אט", "محادثة", "Chat"],
+    actNote: ["הערה", "ملاحظة", "Note"],
+    actEditDetails: ["עריכת פרטים", "تعديل البيانات", "Edit details"],
+    badgeReadonly: ["צפייה בלבד", "عرض فقط", "Read-only"],
+    secInfo: ["פרטי המטופל", "بيانات المتعالج", "Patient details"],
+    lblParent: ["הורה", "ولي الأمر", "Parent"],
+    lblPhone: ["טלפון", "الهاتف", "Phone"],
+    lblBirth: ["תאריך לידה", "تاريخ الميلاد", "Birth date"],
+    lblGender: ["מין", "الجنس", "Gender"],
+    secUpcoming: ["פגישות קרובות", "الجلسات القادمة", "Upcoming sessions"],
+    btnScheduleShort: ["תזמון", "جدولة", "Schedule"],
+    emptyUpcomingP: ["אין פגישות קרובות.", "لا توجد جلسات قادمة.", "No upcoming sessions."],
+    emptyPast: ["אין פגישות קודמות.", "لا توجد جلسات سابقة.", "No past sessions."],
+    secRecordings: ["הקלטות פגישות", "تسجيلات الجلسات", "Session recordings"],
+    btnAdd: ["הוספה", "إضافة", "Add"],
+    emptyRecP: ["אין הקלטות עדיין.", "لا توجد تسجيلات بعد.", "No recordings yet."],
+    secNotes: ["הערות פגישות", "ملاحظات الجلسات", "Session notes"],
+    emptyNotes: ["אין הערות עדיין.", "لا توجد ملاحظات بعد.", "No notes yet."],
+    secProgress: ["אחוז התקדמות", "نسبة التقدم", "Progress"],
+    progressLbl: ["מתוך יעד הטיפול", "من خطة العلاج المستهدفة", "of the therapy goal"],
+    secPlan: ["תוכנית הטיפול הבאה", "خطة العلاج القادمة", "Next therapy plan"],
+    emptyPlan: ["טרם נוספה תוכנית טיפול.", "لم تتم إضافة خطة علاجية بعد.", "No therapy plan added yet."],
+    secFiles: ["קבצים ודוחות", "الملفات والتقارير", "Files & reports"],
+    btnUpload: ["העלאה", "رفع", "Upload"],
+    emptyFilesP: ["אין קבצים שהועלו.", "لا توجد ملفات مرفوعة.", "No files uploaded."],
+    secParentAcc: ["חשבון ההורה", "حساب ولي الأمر", "Parent account"],
+    lastSessionLbl: ["פגישה אחרונה", "آخر جلسة", "Last session"],
+
+    gMale: ["זכר", "ذكر", "Male"],
+    gFemale: ["נקבה", "أنثى", "Female"],
+
+    mEditPatient: ["עריכת פרטי מטופל", "تعديل بيانات المتعالج", "Edit patient"],
+    mAddPatient: ["הוספת מטופל חדש", "إضافة متعالج جديد", "Add new patient"],
+    fFullName: ["שם מלא", "الاسم الكامل", "Full name"],
+    phName: ["לדוגמה: אחמד ח׳אלד", "مثال: أحمد خالد", "e.g. Ahmad Khaled"],
+    fGuardian: ["שם ההורה", "اسم ولي الأمر", "Parent name"],
+    fBirth: ["תאריך לידה", "تاريخ الميلاد", "Birth date"],
+    phDiagnosis: ["לדוגמה: עיכוב בדיבור", "مثال: تأخر في النطق", "e.g. Speech delay"],
+    secParentLogin: ["פרטי התחברות להורה", "بيانات دخول ولي الأمر", "Parent login details"],
+    btnSaveChanges: ["שמירת שינויים", "حفظ التعديلات", "Save changes"],
+    btnAddPatient2: ["הוספת מטופל", "إضافة المتعالج", "Add patient"],
+    cancel: ["ביטול", "إلغاء", "Cancel"],
+    errParentUserExists: ["שם המשתמש של ההורה כבר קיים", "اسم مستخدم ولي الأمر مستخدم مسبقاً", "Parent username already exists"],
+
+    mNote: ["הערת פגישה חדשה", "ملاحظة جلسة جديدة", "New session note"],
+    fSessionDate: ["תאריך הפגישה", "تاريخ الجلسة", "Session date"],
+    fNote: ["הערה", "الملاحظة", "Note"],
+    phNote: ["כתוב את הערות הפגישה והתקדמות המטופל...", "اكتب ملاحظات الجلسة وتقدّم المتعالج...", "Write session notes and the patient's progress..."],
+    btnSaveNote: ["שמירת הערה", "حفظ الملاحظة", "Save note"],
+
+    mProgress: ["עדכון אחוז התקדמות", "تحديث نسبة التقدم", "Update progress"],
+    fProgressPct: ["אחוז התקדמות", "نسبة التقدم", "Progress percentage"],
+    save: ["שמירה", "حفظ", "Save"],
+
+    mPlan: ["תוכנית הטיפול הבאה", "خطة العلاج القادمة", "Next therapy plan"],
+    fPlanLabel: ["כתוב את תוכנית הטיפול לשלב הבא", "اكتب الخطة العلاجية للمرحلة القادمة", "Write the next-stage therapy plan"],
+    phPlan: ["מטרות הפגישות הבאות ותרגילי בית...", "أهداف الجلسات القادمة والتمارين المنزلية...", "Goals for upcoming sessions and home exercises..."],
+    btnSavePlan: ["שמירת התוכנית", "حفظ الخطة", "Save plan"],
+
+    mEditSession: ["עריכת פגישה", "تعديل الجلسة", "Edit session"],
+    mAddSession: ["תזמון פגישה קרובה", "جدولة جلسة قادمة", "Schedule session"],
+    fPatient: ["מטופל", "المتعالج", "Patient"],
+    fDate: ["תאריך", "التاريخ", "Date"],
+    fTime: ["שעה", "الوقت", "Time"],
+    fSessionTitle: ["כותרת / מטרת הפגישה", "عنوان / هدف الجلسة", "Session title / goal"],
+    phSessionTitle: ["לדוגמה: תרגול העיצור ר׳", "مثال: تمرين حرف الراء", "e.g. Practice the R sound"],
+
+    mAddRec: ["הוספת הקלטה", "إضافة تسجيل", "Add recording"],
+    fTitle: ["כותרת", "العنوان", "Title"],
+    phRecTitle: ["לדוגמה: פגישה 12", "مثال: الجلسة 12", "e.g. Session 12"],
+    fVideoLink: ["קישור לוידאו", "رابط الفيديو", "Video link"],
+    recHint: ["הדבק קישור לוידאו (YouTube, Drive, Vimeo וכו׳). ההורה יוכל לצפות בהקלטה מתוך התיק.", "الصق رابط فيديو (YouTube, Drive, Vimeo). يمكن لولي الأمر مشاهدة التسجيل من الملف.", "Paste a video link (YouTube, Drive, Vimeo). The parent can watch it from the file."],
+
+    mUpload: ["העלאת קובץ או דוח", "رفع ملف أو تقرير", "Upload file or report"],
+    dzTitle: ["בחר קובץ להעלאה", "اختر ملفاً للرفع", "Choose a file to upload"],
+    dzSub: ["PDF, תמונה או מסמך — עד 5MB", "PDF أو صورة أو مستند — حتى 5 ميجابايت", "PDF, image or document — up to 5MB"],
+    btnUploadFile: ["העלאת קובץ", "رفع الملف", "Upload file"],
+    fileTooBig: ["הקובץ גדול מדי, נשמר השם בלבד", "الملف كبير جداً، تم حفظ الاسم فقط", "File too large; only the name was saved"],
+
+    mEditDoctor: ["עריכת מטפל", "تعديل الطبيب", "Edit therapist"],
+    mAddDoctor: ["הוספת מטפל חדש", "إضافة طبيب جديد", "Add new therapist"],
+    fDocName: ["שם", "الاسم", "Name"],
+    phDocName: ["לדוגמה: ד״ר מאיה לוי", "مثال: د. منى أحمد", "e.g. Dr. Maya Levi"],
+    fTitleRole: ["תפקיד / התמחות", "التخصص / اللقب", "Role / specialty"],
+    phTitleRole: ["קלינאי תקשורת", "أخصائي تخاطب", "Speech therapist"],
+    secPerms: ["הרשאות", "الصلاحيات", "Permissions"],
+    mainAllPerms: ["למטפל הראשי יש את כל ההרשאות.", "الطبيب الرئيسي يملك كل الصلاحيات.", "The main therapist has all permissions."],
+    btnCreateAcc: ["יצירת חשבון", "إنشاء الحساب", "Create account"],
+    errUserExists: ["שם המשתמש כבר קיים", "اسم المستخدم مستخدم مسبقاً", "Username already exists"],
+
+    mEditBasic: ["עריכת פרטים בסיסיים", "تعديل البيانات الأساسية", "Edit basic details"],
+    fChildName: ["שם הילד", "اسم الطفل", "Child's name"],
+    fPhoneNum: ["מספר טלפון", "رقم الهاتف", "Phone number"],
+    parentEditHint: ["ניתן לעדכן כאן את הפרטים הבסיסיים בלבד. שאר המידע הטיפולי מנוהל על ידי המטפל.", "يمكنك تحديث البيانات الأساسية فقط. باقي المعلومات العلاجية يديرها المعالج.", "You can update basic details only. Therapeutic information is managed by the therapist."],
+
+    confirmYes: ["כן, מחק", "نعم، احذف", "Yes, delete"],
+    confirm: ["אישור", "تأكيد", "Confirm"],
+    delPatientTitle: ["מחיקת מטופל", "حذف المتعالج", "Delete patient"],
+    delPatientMsg: ['התיק של "{0}" יימחק לצמיתות יחד עם כל ההערות והקבצים. לא ניתן לבטל.', 'سيتم حذف ملف "{0}" نهائياً مع جميع الملاحظات والملفات. لا يمكن التراجع.', '"{0}"\'s file will be permanently deleted with all notes and files. This cannot be undone.'],
+    delDoctorTitle: ["מחיקת מטפל", "حذف الطبيب", "Delete therapist"],
+    delDoctorMsgCount: ["למטפל זה {0} מטופלים, והם יועברו למטפל הראשי.", "لدى هذا الطبيب {0} متعالجين وسيتم نقلهم للطبيب الرئيسي.", "This therapist has {0} patients; they'll be moved to the main therapist."],
+    delDoctorMsg: ['חשבון "{0}" יימחק.', 'سيتم حذف حساب "{0}".', 'Account "{0}" will be deleted.'],
+
+    chSubDoctor: ["הורה של {0}", "ولي أمر {0}", "Parent of {0}"],
+    chSubParent: ["המטפל שלך", "المعالج", "Your therapist"],
+    chPlaceholder: ["כתוב הודעה...", "اكتب رسالة...", "Type a message..."],
+    chEmpty: ["אין הודעות עדיין. שלח את ההודעה הראשונה.", "لا توجد رسائل بعد. أرسل أول رسالة.", "No messages yet. Send the first message."],
+    inboxTitle: ["הודעות מהורים", "رسائل أولياء الأمور", "Messages from parents"],
+    inboxEmpty: ["אין עדיין שיחות עם הורים.", "لا توجد محادثات بعد.", "No conversations with parents yet."],
+    close: ["סגירה", "إغلاق", "Close"],
+
+    tSaved: ["השינויים נשמרו", "تم حفظ التعديلات", "Changes saved"],
+    tPatientAdded: ["המטופל נוסף בהצלחה", "تمت إضافة المتعالج بنجاح", "Patient added"],
+    tNoteAdded: ["ההערה נוספה", "تمت إضافة الملاحظة", "Note added"],
+    tNoteDeleted: ["ההערה נמחקה", "تم حذف الملاحظة", "Note deleted"],
+    tProgressUpdated: ["ההתקדמות עודכנה", "تم تحديث التقدم", "Progress updated"],
+    tPlanSaved: ["התוכנית נשמרה", "تم حفظ الخطة", "Plan saved"],
+    tSessionSaved: ["הפגישה נשמרה", "تم حفظ الجلسة", "Session saved"],
+    tSessionDeleted: ["הפגישה נמחקה", "تم حذف الجلسة", "Session deleted"],
+    tRecAdded: ["ההקלטה נוספה", "تمت إضافة التسجيل", "Recording added"],
+    tRecDeleted: ["ההקלטה נמחקה", "تم حذف التسجيل", "Recording deleted"],
+    tFileUploaded: ["הקובץ הועלה", "تم رفع الملف", "File uploaded"],
+    tFileDeleted: ["הקובץ נמחק", "تم حذف الملف", "File deleted"],
+    tPatientDeleted: ["המטופל נמחק", "تم حذف المتعالج", "Patient deleted"],
+    tDoctorCreated: ["חשבון המטפל נוצר", "تم إنشاء حساب الطبيب", "Therapist account created"],
+    tDoctorUpdated: ["פרטי המטפל עודכנו", "تم تحديث بيانات الطبيب", "Therapist updated"],
+    tDoctorDeleted: ["המטפל נמחק", "تم حذف الطبيب", "Therapist deleted"],
+    tDetailsUpdated: ["הפרטים עודכנו", "تم تحديث البيانات", "Details updated"],
+    tDownloading: ["מוריד את {0}", "جارٍ تنزيل {0}", "Downloading {0}"],
+
+    aAddPatient: ["הוסיף מטופל חדש", "أضاف متعالجاً جديداً", "added a new patient"],
+    aEditPatient: ["עדכן פרטי מטופל", "عدّل بيانات المتعالج", "updated patient details"],
+    aDelPatient: ["מחק את תיק המטופל", "حذف ملف المتعالج", "deleted the patient file"],
+    aAddNote: ["הוסיף הערת פגישה", "أضاف ملاحظة جلسة", "added a session note"],
+    aDelNote: ["מחק הערת פגישה", "حذف ملاحظة جلسة", "deleted a session note"],
+    aProgress: ["עדכן את ההתקדמות ל-{0}%", "حدّث التقدم إلى {0}%", "updated progress to {0}%"],
+    aPlan: ["עדכן את תוכנית הטיפול", "حدّث خطة العلاج", "updated the therapy plan"],
+    aUpload: ["העלה קובץ", "رفع ملفاً", "uploaded a file"],
+    aDelFile: ["מחק קובץ", "حذف ملفاً", "deleted a file"],
+    aSchedule: ["תזמן פגישה קרובה", "جدول جلسة قادمة", "scheduled an upcoming session"],
+    aEditSession: ["עדכן פגישה קרובה", "عدّل جلسة قادمة", "updated an upcoming session"],
+    aDelSession: ["ביטל פגישה קרובה", "ألغى جلسة قادمة", "canceled an upcoming session"],
+    aAddRec: ["הוסיף הקלטה", "أضاف تسجيلاً", "added a recording"],
+    aDelRec: ["מחק הקלטה", "حذف تسجيلاً", "deleted a recording"],
+    aCreateDoc: ["יצר חשבון מטפל: {0}", "أنشأ حساب طبيب: {0}", "created therapist account: {0}"],
+    aEditDoc: ["עדכן פרטי/הרשאות מטפל: {0}", "عدّل بيانات/صلاحيات طبيب: {0}", "updated therapist/permissions: {0}"],
+    aDelDoc: ["מחק חשבון מטפל: {0}", "حذف حساب طبيب: {0}", "deleted therapist account: {0}"],
+    aParentEdit: ["עדכן פרטי פרופיל בסיסיים", "عدّل البيانات الأساسية", "updated basic profile details"],
+    aChatMsg: ["שלח הודעה בצ׳אט", "أرسل رسالة في المحادثة", "sent a chat message"],
+    parentOf: ["הורה של {0}", "ولي أمر {0}", "parent of {0}"],
+    sysName: ["המערכת", "النظام", "System"],
+  };
+
+  const t = (k) => { const e = S[k]; return e ? e[L] : k; };
+  const ti = (k, v) => t(k).replace("{0}", v);
+  const loc = () => ["he-IL", "ar-EG", "en-US"][L];
+
+  function applyLangAttrs() {
+    const code = LANGS[L].code;
+    document.documentElement.lang = code;
+    document.documentElement.dir = code === "en" ? "ltr" : "rtl";
+  }
+  function setLang(i) { L = i; try { localStorage.setItem(LANG_KEY, String(i)); } catch (e) {} render(); }
+
+  function LangSwitcher() {
+    return `<div class="lang-switch">
+      <button class="lang-btn" data-lang-toggle>${I.globe}<span>${LANGS[L].short}</span></button>
+      <div class="lang-menu" data-lang-menu hidden>
+        ${LANGS.map((lg, i) => `<button data-setlang="${i}" class="${i === L ? "on" : ""}">${lg.native}</button>`).join("")}
+      </div>
+    </div>`;
+  }
+  function bindLangSwitch() {
+    $$("[data-lang-toggle]").forEach((btn) => btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const menu = btn.parentElement.querySelector("[data-lang-menu]");
+      const isOpen = !menu.hasAttribute("hidden");
+      $$("[data-lang-menu]").forEach((m) => m.setAttribute("hidden", ""));
+      if (isOpen) return;
+      menu.removeAttribute("hidden");
+      const onDoc = (ev) => { if (!btn.parentElement.contains(ev.target)) { menu.setAttribute("hidden", ""); document.removeEventListener("click", onDoc); } };
+      setTimeout(() => document.addEventListener("click", onDoc), 0);
+    }));
+    $$("[data-setlang]").forEach((b) => b.addEventListener("click", () => setLang(+b.dataset.setlang)));
+  }
 
   /* ---------------- Utilities ---------------- */
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const initials = (name) => {
-    const p = String(name).replace(/^د\.\s*/, "").trim().split(/\s+/);
+    const p = String(name).replace(/^(ד[״"'.]?ר[׳'.]?|د\.?|dr\.?)\s+/i, "").trim().split(/\s+/);
     return ((p[0] || "")[0] || "") + ((p[1] || "")[0] || "");
   };
   const avaClass = (id) => "ava-c" + (Math.abs(hashStr(id)) % 5);
   function hashStr(s) { let h = 0; for (let i = 0; i < String(s).length; i++) h = (h << 5) - h + s.charCodeAt(i); return h; }
   const today = () => new Date().toISOString().slice(0, 10);
   const isUpcoming = (d) => d >= today();
-  function fmtDate(d) {
-    if (!d) return "—";
-    try { return new Intl.DateTimeFormat("ar-EG", { year: "numeric", month: "long", day: "numeric" }).format(new Date(d)); }
-    catch (e) { return d; }
-  }
-  function fmtDateTime(ts) {
-    if (!ts) return "—";
-    try {
-      return new Intl.DateTimeFormat("ar-EG", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(ts));
-    } catch (e) { return ts; }
-  }
-  function fmtSize(b) {
-    if (b == null) return "";
-    if (b < 1024) return b + " B";
-    if (b < 1048576) return (b / 1024).toFixed(1) + " KB";
-    return (b / 1048576).toFixed(1) + " MB";
-  }
+  const genderText = (v) => v === "זכר" ? t("gMale") : v === "נקבה" ? t("gFemale") : (v || "—");
+  function fmtDate(d) { if (!d) return "—"; try { return new Intl.DateTimeFormat(loc(), { year: "numeric", month: "long", day: "numeric" }).format(new Date(d)); } catch (e) { return d; } }
+  function fmtDateTime(ts) { if (!ts) return "—"; try { return new Intl.DateTimeFormat(loc(), { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(ts)); } catch (e) { return ts; } }
+  function fmtTime(ts) { try { return new Intl.DateTimeFormat(loc(), { hour: "2-digit", minute: "2-digit" }).format(new Date(ts)); } catch (e) { return ""; } }
+  const monthShort = (d) => { try { return new Intl.DateTimeFormat(loc(), { month: "short" }).format(new Date(d)); } catch (e) { return ""; } };
+  function fmtSize(b) { if (b == null) return ""; if (b < 1024) return b + " B"; if (b < 1048576) return (b / 1024).toFixed(1) + " KB"; return (b / 1048576).toFixed(1) + " MB"; }
 
   /* ============================================================
-     Data store (localStorage)  — schema v2
+     Data store (localStorage)  — schema v3
      ============================================================ */
-  const DB_KEY = "littletalkers.db.v2";
-  const SESSION_KEY = "littletalkers.session.v2";
+  const DB_KEY = "littletalkers.db.v3";
+  const SESSION_KEY = "littletalkers.session.v3";
+  const ALL_PERMS = ["viewAll", "managePatients", "manageRecordings", "chat"];
+  const fullPerms = () => ({ viewAll: true, managePatients: true, manageRecordings: true, chat: true });
+  const PERM_KEY = { viewAll: "permViewAll", managePatients: "permManage", manageRecordings: "permRec", chat: "permChat" };
 
   function seed() {
     const doctors = [
-      { id: "d-main", username: "doctor", password: "1234", name: "د. سارة محمد", title: "أخصائية نطق وتخاطب", role: "main" },
-      { id: "d-2", username: "khaled", password: "1234", name: "د. خالد إبراهيم", title: "أخصائي تخاطب", role: "doctor" },
+      { id: "d-main", username: "doctor", password: "1234", name: "ד״ר שרה מזרחי", title: "קלינאית תקשורת", role: "main", permissions: fullPerms() },
+      { id: "d-2", username: "khaled", password: "1234", name: "ד״ר דוד כהן", title: "קלינאי תקשורת", role: "doctor", permissions: fullPerms() },
     ];
     const patients = [
       mkPatient({
-        name: "أحمد خالد", age: 7, gender: "ذكر", guardian: "خالد عبدالله", phone: "0501234567",
-        diagnosis: "تأخر في النطق", progress: 65, lastSession: "2024-05-20", doctorId: "d-main",
+        name: "אחמד ח׳אלד", age: 7, gender: "זכר", birthDate: "2018-09-12", guardian: "ח׳אלד עבדאללה", phone: "0501234567",
+        diagnosis: "עיכוב בדיבור", progress: 65, lastSession: "2024-05-20", doctorId: "d-main",
         parentUsername: "ahmad", parentPassword: "1234",
-        plan: "التركيز على نطق حرف الراء من خلال تمارين أمام المرآة، ومراجعة بطاقات الكلمات المنزلية ثلاث مرات أسبوعياً.",
+        plan: "התמקדות בהגיית העיצור ר׳ דרך תרגול מול המראה, וחזרה על כרטיסיות מילים בבית שלוש פעמים בשבוע.",
         notes: [
-          { id: uid(), date: "2024-05-20", text: "تحسن ملحوظ في نطق الكلمات القصيرة. استجابة جيدة للتمارين الجديدة وتفاعل إيجابي خلال الجلسة." },
-          { id: uid(), date: "2024-05-13", text: "بدأنا تمارين مخارج حرف الراء. يحتاج إلى مزيد من التكرار المنزلي." },
+          { id: uid(), date: "2024-05-20", text: "שיפור ניכר בהגיית מילים קצרות. תגובה טובה לתרגילים החדשים ומעורבות חיובית בפגישה." },
+          { id: uid(), date: "2024-05-13", text: "התחלנו תרגול מוצא העיצור ר׳. נדרשת חזרה נוספת בבית." },
         ],
         sessions: [
-          { id: uid(), date: "2026-06-28", time: "10:00", title: "تمارين حرف الراء أمام المرآة" },
-          { id: uid(), date: "2026-07-05", time: "10:00", title: "مراجعة بطاقات الكلمات" },
+          { id: uid(), date: "2026-06-28", time: "10:00", title: "תרגול העיצור ר׳ מול המראה" },
+          { id: uid(), date: "2026-07-05", time: "10:00", title: "חזרה על כרטיסיות מילים" },
         ],
-        files: [{ id: uid(), name: "تقرير_التقييم_الأولي.pdf", size: 248000, date: "2024-05-06" }],
+        files: [{ id: uid(), name: "דוח_הערכה_ראשוני.pdf", size: 248000, date: "2024-05-06" }],
+        recordings: [],
+        chat: [{ id: uid(), ts: "2026-06-24T18:20:00", from: "parent", senderName: "ח׳אלד עבדאללה", text: "שלום ד״ר, אחמד תרגל היטב בבית השבוע.", read: true }],
       }),
       mkPatient({
-        name: "ليان محمد", age: 5, gender: "أنثى", guardian: "محمد سعيد", phone: "0559876543",
-        diagnosis: "اضطراب في مخارج الحروف", progress: 40, lastSession: "2024-05-18", doctorId: "d-2",
+        name: "ליאן מוחמד", age: 5, gender: "נקבה", birthDate: "2020-11-03", guardian: "מוחמד סעיד", phone: "0559876543",
+        diagnosis: "הפרעה במוצא עיצורים", progress: 40, lastSession: "2024-05-18", doctorId: "d-2",
         parentUsername: "layan", parentPassword: "1234",
-        plan: "تمارين تقوية عضلات الفم، وتكرار أصوات الحروف (س، ش، ث) مع الأهل يومياً لمدة عشر دقائق.",
-        notes: [{ id: uid(), date: "2024-05-18", text: "تتقن نطق حرف السين بشكل أفضل. ما زالت تخلط بين السين والشين أحياناً." }],
-        sessions: [{ id: uid(), date: "2026-06-27", time: "11:30", title: "تقوية عضلات الفم" }],
-        files: [],
+        plan: "תרגילי חיזוק שרירי הפה, וחזרה על צלילי העיצורים (ס, שׁ, ת) עם ההורים כל יום עשר דקות.",
+        notes: [{ id: uid(), date: "2024-05-18", text: "שולטת טוב יותר בהגיית העיצור ס. עדיין מבלבלת לעיתים בין ס ל-שׁ." }],
+        sessions: [{ id: uid(), date: "2026-06-27", time: "11:30", title: "חיזוק שרירי הפה" }],
+        files: [], recordings: [], chat: [],
       }),
       mkPatient({
-        name: "سليم محمود", age: 6, gender: "ذكر", guardian: "محمود فهد", phone: "0533219876",
-        diagnosis: "التلعثم", progress: 30, lastSession: "2024-05-17", doctorId: "d-main",
+        name: "סלים מחמוד", age: 6, gender: "זכר", birthDate: "2019-07-21", guardian: "מחמוד פהד", phone: "0533219876",
+        diagnosis: "גמגום", progress: 30, lastSession: "2024-05-17", doctorId: "d-main",
         parentUsername: "saleem", parentPassword: "1234",
-        plan: "تطبيق تقنية الكلام البطيء، وتمارين التنفس قبل بدء الحديث، وتقليل الضغط أثناء التواصل في المنزل.",
-        notes: [{ id: uid(), date: "2024-05-17", text: "تحسن بسيط في طلاقة الكلام عند استخدام تقنية التنفس. يحتاج بيئة هادئة للتدرب." }],
-        sessions: [{ id: uid(), date: "2026-06-30", time: "09:00", title: "تمارين التنفس وتقنية الكلام البطيء" }],
-        files: [],
+        plan: "יישום טכניקת דיבור איטי, תרגילי נשימה לפני תחילת הדיבור, והפחתת לחץ בזמן תקשורת בבית.",
+        notes: [{ id: uid(), date: "2024-05-17", text: "שיפור קל בשטף הדיבור בעת שימוש בטכניקת הנשימה. זקוק לסביבה שקטה לתרגול." }],
+        sessions: [{ id: uid(), date: "2026-06-30", time: "09:00", title: "תרגילי נשימה וטכניקת דיבור איטי" }],
+        files: [], recordings: [], chat: [],
       }),
       mkPatient({
-        name: "نور علي", age: 4, gender: "أنثى", guardian: "علي حسن", phone: "0567452310",
-        diagnosis: "ضعف في التواصل", progress: 50, lastSession: "2024-05-15", doctorId: "d-2",
+        name: "נור עלי", age: 4, gender: "נקבה", birthDate: "2021-04-15", guardian: "עלי חסן", phone: "0567452310",
+        diagnosis: "קושי בתקשורת", progress: 50, lastSession: "2024-05-15", doctorId: "d-2",
         parentUsername: "noor", parentPassword: "1234",
-        plan: "تشجيع التواصل البصري واللعب التفاعلي، واستخدام البطاقات المصورة لتوسيع الحصيلة اللغوية.",
-        notes: [{ id: uid(), date: "2024-05-15", text: "تفاعل أفضل مع البطاقات المصورة وبدأت تشير إلى احتياجاتها. تواصل بصري متزايد." }],
-        sessions: [{ id: uid(), date: "2026-07-02", time: "12:00", title: "جلسة بطاقات مصورة تفاعلية" }],
-        files: [],
+        plan: "עידוד קשר עין ומשחק אינטראקטיבי, ושימוש בכרטיסיות מצוירות להרחבת אוצר המילים.",
+        notes: [{ id: uid(), date: "2024-05-15", text: "מעורבות טובה יותר עם הכרטיסיות המצוירות והתחילה להצביע על צרכיה. קשר עין הולך וגובר." }],
+        sessions: [{ id: uid(), date: "2026-07-02", time: "12:00", title: "פגישת כרטיסיות מצוירות אינטראקטיבית" }],
+        files: [], recordings: [], chat: [],
       }),
     ];
     const logs = [
-      { id: uid(), ts: "2024-05-20T10:30:00", doctorId: "d-main", doctorName: "د. سارة محمد", action: "أضافت ملاحظة جلسة", patientName: "أحمد خالد", patientId: patients[0].id, kind: "note" },
-      { id: uid(), ts: "2024-05-18T09:15:00", doctorId: "d-2", doctorName: "د. خالد إبراهيم", action: "حدّث نسبة التقدم", patientName: "ليان محمد", patientId: patients[1].id, kind: "progress" },
+      { id: uid(), ts: "2024-05-20T10:30:00", doctorId: "d-main", doctorName: "ד״ר שרה מזרחי", action: "הוסיפה הערת פגישה", patientName: "אחמד ח׳אלד", patientId: patients[0].id, kind: "note" },
+      { id: uid(), ts: "2024-05-18T09:15:00", doctorId: "d-2", doctorName: "ד״ר דוד כהן", action: "עדכן את אחוז ההתקדמות", patientName: "ליאן מוחמד", patientId: patients[1].id, kind: "progress" },
     ];
-    return { doctors, patients, logs, messages: [] };
+    return { doctors, patients, logs };
   }
 
   function mkPatient(p) {
-    return Object.assign({ id: uid(), notes: [], files: [], sessions: [], plan: "", doctorId: "d-main" }, p);
+    return Object.assign({ id: uid(), notes: [], files: [], sessions: [], recordings: [], chat: [], plan: "", birthDate: "", doctorId: "d-main" }, p);
   }
 
   let DB;
   function loadDB() {
-    try { const raw = localStorage.getItem(DB_KEY); if (raw) { DB = JSON.parse(raw); return; } } catch (e) {}
+    try { const raw = localStorage.getItem(DB_KEY); if (raw) { DB = JSON.parse(raw); normalize(); return; } } catch (e) {}
     DB = seed(); saveDB();
+  }
+  function normalize() {
+    DB.doctors = DB.doctors || []; DB.patients = DB.patients || []; DB.logs = DB.logs || [];
+    DB.doctors.forEach((d) => { if (!d.permissions) d.permissions = fullPerms(); });
+    DB.patients.forEach((p) => { p.recordings = p.recordings || []; p.chat = p.chat || []; p.sessions = p.sessions || []; p.files = p.files || []; p.notes = p.notes || []; });
   }
   function saveDB() { try { localStorage.setItem(DB_KEY, JSON.stringify(DB)); } catch (e) {} }
   function getSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch (e) { return null; } }
@@ -160,33 +480,28 @@
   const currentDoctor = () => { const s = getSession(); return s && s.role === "therapist" ? getDoctor(s.doctorId) : null; };
   const doctorName = (id) => { const d = getDoctor(id); return d ? d.name : "—"; };
 
-  /* activity log */
+  function can(perm) { const d = currentDoctor(); if (!d) return false; if (d.role === "main") return true; return !!(d.permissions && d.permissions[perm]); }
+  function visiblePatients() { const d = currentDoctor(); if (!d) return DB.patients; if (d.role === "main" || (d.permissions && d.permissions.viewAll)) return DB.patients; return DB.patients.filter((p) => p.doctorId === d.id); }
+
   function logEvent(action, opts) {
     opts = opts || {};
     const doc = opts.doctor || currentDoctor();
-    DB.logs.unshift({
-      id: uid(), ts: new Date().toISOString(),
-      doctorId: doc ? doc.id : null,
-      doctorName: opts.actorName || (doc ? doc.name : "النظام"),
-      action: action, patientName: opts.patientName || "", patientId: opts.patientId || null,
-      kind: opts.kind || "info",
-    });
+    DB.logs.unshift({ id: uid(), ts: new Date().toISOString(), doctorId: doc ? doc.id : null,
+      doctorName: opts.actorName || (doc ? doc.name : t("sysName")), action: action,
+      patientName: opts.patientName || "", patientId: opts.patientId || null, kind: opts.kind || "info" });
     if (DB.logs.length > 500) DB.logs.length = 500;
   }
 
-  /* messages addressed to a doctor (main sees all) */
-  function inboxFor(doc) {
-    if (!doc) return [];
-    return DB.messages.filter((m) => doc.role === "main" || m.doctorId === doc.id);
-  }
-  const unreadCount = (doc) => inboxFor(doc).filter((m) => !m.read).length;
+  const doctorUnread = () => visiblePatients().reduce((n, p) => n + p.chat.filter((m) => m.from === "parent" && !m.read).length, 0);
+  const parentUnread = (p) => p.chat.filter((m) => m.from === "doctor" && !m.read).length;
 
   /* ---------------- App state ---------------- */
   const freshState = () => ({ route: "login", loginRole: "therapist", patientId: null, showAll: false, navOpen: false,
-    filters: { search: "", doctor: "", diagnosis: "", sort: "recent" }, logDoctor: "" });
+    filters: { search: "", doctor: "", diagnosis: "", sort: "recent" },
+    logF: { doctor: "", kind: "", search: "" }, sesF: { doctor: "", patient: "", search: "" },
+    repF: { patient: "", doctor: "", search: "" }, recF: { patient: "", doctor: "", search: "" }, docSearch: "" });
   let state = freshState();
 
-  /* ---------------- Toast ---------------- */
   function toast(msg, type) {
     const root = $("#toast-root");
     const el = document.createElement("div");
@@ -201,15 +516,15 @@
      RENDER ROOT
      ============================================================ */
   function render() {
+    applyLangAttrs();
     const app = $("#app");
     const session = getSession();
-    if (!session) { app.innerHTML = LoginView(); afterLogin(); return; }
-    if (session.role === "therapist") {
+    if (!session) { app.innerHTML = LoginView(); afterLogin(); }
+    else if (session.role === "therapist") {
       if (!getDoctor(session.doctorId)) { setSession(null); render(); return; }
       app.innerHTML = TherapistShell(); afterTherapist();
-    } else {
-      app.innerHTML = ParentShell(session); afterParent();
-    }
+    } else { app.innerHTML = ParentShell(session); afterParent(); }
+    bindLangSwitch();
   }
 
   /* ============================================================
@@ -222,56 +537,48 @@
       <aside class="login-aside">
         <span class="bubble b1"></span><span class="bubble b2"></span><span class="bubble b3"></span>
         <div class="aside-content">
-          ${Brand("متحدثون صغار")}
-          <h1>رعاية متخصّصة لنطق وتخاطب أطفالكم</h1>
-          <p>منصة بسيطة تجمع الأخصائي وأولياء الأمور في مكان واحد لمتابعة تقدم الجلسات العلاجية بكل سهولة وطمأنينة.</p>
+          ${Brand("subLogin")}
+          <h1>${t("heroTitle")}</h1>
+          <p>${t("heroDesc")}</p>
         </div>
         <svg class="brain-art" viewBox="0 0 200 200" fill="#c9bdf0" opacity=".6"><path d="M100 30c30 0 50 20 55 45 8 5 12 14 8 24-3 8-10 12-18 12-6 14-22 22-45 22s-39-8-45-22c-8 0-15-4-18-12-4-10 0-19 8-24 5-25 25-45 55-45z"/></svg>
       </aside>
       <div class="login-panel">
+        <div class="login-topbar">${LangSwitcher()}</div>
         <div class="login-card">
-          <div style="margin-bottom:30px">${Brand("متحدثون صغار")}</div>
-          <h2>أهلاً بعودتك 👋</h2>
-          <p class="sub">سجّل الدخول للمتابعة إلى حسابك</p>
+          <div style="margin-bottom:30px">${Brand("subLogin")}</div>
+          <h2>${t("welcomeBack")}</h2>
+          <p class="sub">${t("loginSub")}</p>
           <div class="seg">
-            <button data-role="therapist" class="${r === "therapist" ? "on" : ""}">${I.stetho} الأخصائي</button>
-            <button data-role="parent" class="${r === "parent" ? "on" : ""}">${I.users} ولي الأمر</button>
+            <button data-role="therapist" class="${r === "therapist" ? "on" : ""}">${I.stetho} ${t("roleTher")}</button>
+            <button data-role="parent" class="${r === "parent" ? "on" : ""}">${I.users} ${t("roleParent")}</button>
           </div>
           <form id="login-form">
             <div id="login-error"></div>
-            <div class="field"><label>اسم المستخدم</label>
-              <div class="control">${I.user}<input name="username" autocomplete="username" placeholder="أدخل اسم المستخدم" /></div></div>
-            <div class="field"><label>كلمة المرور</label>
+            <div class="field"><label>${t("username")}</label>
+              <div class="control">${I.user}<input name="username" autocomplete="username" placeholder="${t("phUsername")}" /></div></div>
+            <div class="field"><label>${t("password")}</label>
               <div class="control">${I.lock}<input name="password" type="password" autocomplete="current-password" placeholder="••••••••" />
                 <button type="button" class="toggle-eye" data-eye>${I.eye}</button></div></div>
-            <button class="btn btn-primary btn-block" type="submit" style="margin-top:6px">تسجيل الدخول</button>
+            <button class="btn btn-primary btn-block" type="submit" style="margin-top:6px">${t("btnLogin")}</button>
           </form>
-          <div class="login-hint">
-            ${r === "therapist"
-              ? `<b>حساب تجريبي للأخصائي:</b><br>المستخدم: <b>doctor</b> — كلمة المرور: <b>1234</b>`
-              : `<b>حساب تجريبي لولي الأمر:</b><br>المستخدم: <b>ahmad</b> — كلمة المرور: <b>1234</b>`}
-          </div>
+          <div class="login-hint">${r === "therapist" ? t("demoTher") : t("demoParent")}</div>
         </div>
       </div>
     </div>`;
   }
 
-  function Brand(subtitle) {
+  function Brand(subKey) {
     return `<div class="logo">
       <div class="logo-mark">${I.logo}</div>
-      <div class="logo-text"><strong>Little Talkers</strong><span>${esc(subtitle)}</span></div>
+      <div class="logo-text"><strong>Little Talkers</strong><span>${t(subKey)}</span></div>
     </div>`;
   }
 
   function afterLogin() {
     $$("[data-role]").forEach((b) => b.addEventListener("click", () => { state.loginRole = b.dataset.role; render(); }));
     const eye = $("[data-eye]");
-    if (eye) eye.addEventListener("click", () => {
-      const inp = eye.previousElementSibling;
-      const show = inp.type === "password";
-      inp.type = show ? "text" : "password";
-      eye.innerHTML = show ? I.eyeOff : I.eye;
-    });
+    if (eye) eye.addEventListener("click", () => { const inp = eye.previousElementSibling; const show = inp.type === "password"; inp.type = show ? "text" : "password"; eye.innerHTML = show ? I.eyeOff : I.eye; });
     const form = $("#login-form");
     form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -283,7 +590,7 @@
         const pt = DB.patients.find((x) => x.parentUsername === u && x.parentPassword === p);
         if (pt) { setSession({ role: "parent", patientId: pt.id }); render(); return; }
       }
-      $("#login-error").innerHTML = `<div class="form-error">بيانات الدخول غير صحيحة. تأكد من اسم المستخدم وكلمة المرور.</div>`;
+      $("#login-error").innerHTML = `<div class="form-error">${t("errLogin")}</div>`;
     });
   }
 
@@ -291,59 +598,44 @@
      THERAPIST SHELL
      ============================================================ */
   function TherapistShell() {
-    return `
-    <div class="shell ${state.navOpen ? "nav-open" : ""}">
-      <div class="scrim" data-close-nav></div>
-      ${Sidebar()}
-      <div class="main">
-        ${Topbar()}
-        <div class="content" id="content"></div>
-      </div>
-    </div>`;
+    return `<div class="shell ${state.navOpen ? "nav-open" : ""}"><div class="scrim" data-close-nav></div>${Sidebar()}<div class="main">${Topbar()}<div class="content" id="content"></div></div></div>`;
   }
 
   function Sidebar() {
-    const doc = currentDoctor();
-    const route = state.route;
-    const items = [
-      ["dashboard", I.home, "لوحة التحكم"],
-      ["patients", I.users, "المتعالجين"],
-      ["sessions", I.calendar, "الجلسات القادمة"],
-      ["log", I.history, "سجل النشاط"],
-    ];
-    if (doc && doc.role === "main") items.push(["doctors", I.stetho, "الأطباء"]);
-    items.push(["add", I.userPlus, "إضافة متعالج"]);
-
+    const doc = currentDoctor(); const route = state.route;
+    const items = [["dashboard", I.home, "nDash"], ["patients", I.users, "nPatients"], ["sessions", I.calendar, "nSessions"], ["recordings", I.video, "nRecordings"], ["reports", I.report, "nReports"], ["log", I.history, "nLog"]];
+    if (doc && doc.role === "main") items.push(["doctors", I.stetho, "nDoctors"]);
+    items.push(["add", I.userPlus, "nAdd"]);
     const active = (key) => route === key || (key === "patients" && route === "profile");
     return `
     <aside class="sidebar">
-      ${Brand("لوحة الأخصائي")}
+      ${Brand("subTher")}
       <div class="sidebar-user">
         <div class="ava md ${avaClass(doc.id)}">${esc(initials(doc.name))}</div>
-        <div class="meta"><strong>${esc(doc.name)}</strong><span>${esc(doc.title)}${doc.role === "main" ? " · رئيسي" : ""}</span></div>
+        <div class="meta"><strong>${esc(doc.name)}</strong><span>${esc(doc.title)}${doc.role === "main" ? " · " + t("roleMain") : ""}</span></div>
       </div>
       <nav class="nav">
-        ${items.map(([k, ic, label]) =>
-          `<button class="nav-item ${active(k) ? "active" : ""}" data-nav="${k}">${ic}<span>${label}</span></button>`).join("")}
+        ${items.map(([k, ic, label]) => (k === "add" && !can("managePatients")) ? "" : `<button class="nav-item ${active(k) ? "active" : ""}" data-nav="${k}">${ic}<span>${t(label)}</span></button>`).join("")}
         <div class="nav-spacer"></div>
-        <button class="nav-item logout" data-logout>${I.logout}<span>تسجيل الخروج</span></button>
+        <button class="nav-item logout" data-logout>${I.logout}<span>${t("nLogout")}</span></button>
       </nav>
     </aside>`;
   }
 
   function Topbar() {
     const doc = currentDoctor();
-    const unread = unreadCount(doc);
-    const titles = { dashboard: "لوحة التحكم", patients: "المتعالجين", sessions: "الجلسات القادمة", log: "سجل النشاط", doctors: "الأطباء", profile: "ملف المتعالج" };
+    const unread = can("chat") ? doctorUnread() : 0;
+    const titles = { dashboard: "nDash", patients: "nPatients", sessions: "nSessions", recordings: "nRecordings", reports: "nReports", log: "nLog", doctors: "nDoctors", profile: "titleProfile" };
     return `
     <div class="topbar">
       <div style="display:flex;align-items:center;gap:12px">
         <button class="icon-btn hamburger" data-toggle-nav>${I.menu}</button>
-        <div class="page-title">${titles[state.route] || "لوحة التحكم"}</div>
+        <div class="page-title">${t(titles[state.route] || "nDash")}</div>
       </div>
       <div class="right">
-        <span class="greet">مرحباً <b>${esc(doc.name)}</b></span>
-        <button class="icon-btn bell" data-inbox title="الرسائل">${I.bell}${unread ? `<span class="count">${unread}</span>` : `<span class="dot"></span>`}</button>
+        <span class="greet">${t("hello")} <b>${esc(doc.name)}</b></span>
+        ${LangSwitcher()}
+        ${can("chat") ? `<button class="icon-btn bell" data-inbox>${I.bell}${unread ? `<span class="count">${unread}</span>` : `<span class="dot"></span>`}</button>` : ""}
         <div class="ava md ${avaClass(doc.id)}">${esc(initials(doc.name))}</div>
       </div>
     </div>`;
@@ -356,12 +648,13 @@
   }
 
   function renderTherapistContent() {
-    const c = $("#content");
-    if (!c) return;
+    const c = $("#content"); if (!c) return;
     switch (state.route) {
       case "dashboard": c.innerHTML = DashboardView(); break;
       case "patients": c.innerHTML = PatientsView(); break;
       case "sessions": c.innerHTML = SessionsView(); break;
+      case "recordings": c.innerHTML = RecordingsView(); break;
+      case "reports": c.innerHTML = ReportsView(); break;
       case "log": c.innerHTML = LogView(); break;
       case "doctors": c.innerHTML = DoctorsView(); break;
       case "profile": c.innerHTML = ProfileView(getPatient(state.patientId), false); break;
@@ -376,8 +669,7 @@
       if (key === "add") { openPatientModal(null); return; }
       state.route = key; state.patientId = null; state.showAll = false; render();
     }));
-    const lo = $("[data-logout]");
-    if (lo) lo.addEventListener("click", () => { setSession(null); state = freshState(); render(); });
+    const lo = $("[data-logout]"); if (lo) lo.addEventListener("click", () => { setSession(null); state = freshState(); render(); });
     const tg = $("[data-toggle-nav]"); if (tg) tg.addEventListener("click", () => { state.navOpen = !state.navOpen; render(); });
     const sc = $("[data-close-nav]"); if (sc) sc.addEventListener("click", () => { state.navOpen = false; render(); });
   }
@@ -386,17 +678,16 @@
      DASHBOARD
      ============================================================ */
   function DashboardView() {
-    const ps = DB.patients;
+    const ps = visiblePatients();
     const total = ps.length;
-    const sessionsLogged = ps.reduce((n, p) => n + p.notes.length, 0);
-    const reports = ps.reduce((n, p) => n + p.files.length, 0);
     const upcoming = ps.reduce((n, p) => n + p.sessions.filter((s) => isUpcoming(s.date)).length, 0);
-
+    const recordings = ps.reduce((n, p) => n + p.recordings.length, 0);
+    const reports = ps.reduce((n, p) => n + p.files.length, 0);
     const stats = [
-      ["purple", I.users, "إجمالي المتعالجين", total, "جميع المتعالجين", "patients"],
-      ["amber", I.calendar, "الجلسات القادمة", upcoming, "جلسات مجدولة", "sessions"],
-      ["green", I.check, "الجلسات المسجّلة", sessionsLogged, "ملاحظات مكتملة", "log"],
-      ["blue", I.report, "التقارير", reports, "ملفات مرفوعة", "patients"],
+      ["purple", I.users, t("stTotal"), total, t("stTotalFoot"), "patients"],
+      ["amber", I.calendar, t("nSessions"), upcoming, t("stUpcomingFoot"), "sessions"],
+      ["green", I.video, t("nRecordings"), recordings, recordings ? t("stRecFoot") : t("stRecEmpty"), "recordings"],
+      ["blue", I.report, t("nReports"), reports, t("stReportsFoot"), "reports"],
     ];
     return `
       <div class="stat-grid">
@@ -407,10 +698,7 @@
           </button>`).join("")}
       </div>
       ${PatientsView(true)}
-      <div class="note-banner">
-        <div class="ico">${I.bulb}</div>
-        <div><h4>ملاحظة</h4><p>لا تنسَ إضافة ملاحظات الجلسة بعد كل جلسة لمتابعة تقدّم المتعالج.</p></div>
-      </div>`;
+      <div class="note-banner"><div class="ico">${I.bulb}</div><div><h4>${t("tipTitle")}</h4><p>${t("tipText")}</p></div></div>`;
   }
 
   /* ============================================================
@@ -418,7 +706,7 @@
      ============================================================ */
   function applyFilters() {
     const f = state.filters;
-    let list = DB.patients.slice();
+    let list = visiblePatients().slice();
     const q = f.search.trim();
     if (q) list = list.filter((p) => p.name.includes(q) || (p.diagnosis || "").includes(q) || (p.guardian || "").includes(q));
     if (f.doctor) list = list.filter((p) => p.doctorId === f.doctor);
@@ -426,147 +714,212 @@
     if (f.sort === "recent") list.sort((a, b) => (b.lastSession || "").localeCompare(a.lastSession || ""));
     else if (f.sort === "progress-high") list.sort((a, b) => b.progress - a.progress);
     else if (f.sort === "progress-low") list.sort((a, b) => a.progress - b.progress);
-    else if (f.sort === "name") list.sort((a, b) => a.name.localeCompare(b.name, "ar"));
+    else if (f.sort === "name") list.sort((a, b) => a.name.localeCompare(b.name));
     return list;
   }
 
   function PatientsView(compact) {
     const f = state.filters;
+    const editable = can("managePatients");
     let list = applyFilters();
     const limit = compact && !state.showAll ? 4 : list.length;
     const shown = list.slice(0, limit);
     const hasMore = list.length > limit;
-    const diagnoses = Array.from(new Set(DB.patients.map((p) => p.diagnosis))).filter(Boolean);
+    const diagnoses = Array.from(new Set(visiblePatients().map((p) => p.diagnosis))).filter(Boolean);
 
     const rows = shown.map((p) => `
       <tr data-row="${p.id}">
-        <td><div class="cell-name">
-          <div class="ava md ${avaClass(p.id)}">${esc(initials(p.name))}</div>
-          <div><div class="nm">${esc(p.name)}</div><div class="sb">${esc(p.guardian || "")}</div></div>
-        </div></td>
-        <td>${esc(p.age)} سنوات</td>
+        <td><div class="cell-name"><div class="ava md ${avaClass(p.id)}">${esc(initials(p.name))}</div>
+          <div><div class="nm">${esc(p.name)}</div><div class="sb">${esc(p.guardian || "")}</div></div></div></td>
+        <td>${esc(p.age)} ${t("years")}</td>
         <td><span class="tag">${esc(p.diagnosis)}</span></td>
         <td><span class="doc-pill">${I.stetho}${esc((getDoctor(p.doctorId) || {}).name || "—")}</span></td>
         <td>${fmtDate(p.lastSession)}</td>
         <td><div class="progress"><span class="pct">${p.progress}%</span><div class="bar"><i style="width:${p.progress}%"></i></div></div></td>
         <td><div class="row-actions">
-          <button class="icon-btn" data-open="${p.id}" title="فتح الملف">${I.folder}</button>
-          <button class="icon-btn" data-edit="${p.id}" title="تعديل">${I.edit}</button>
-          <button class="icon-btn danger" data-remove="${p.id}" title="حذف">${I.trash}</button>
+          <button class="icon-btn" data-open="${p.id}" title="${t("ttOpen")}">${I.folder}</button>
+          ${editable ? `<button class="icon-btn" data-edit="${p.id}" title="${t("ttEdit")}">${I.edit}</button>
+          <button class="icon-btn danger" data-remove="${p.id}" title="${t("ttDelete")}">${I.trash}</button>` : ""}
         </div></td>
       </tr>`).join("");
 
     const body = list.length === 0
-      ? `<tr><td colspan="7"><div class="empty">${I.users}<p>${(f.search || f.doctor || f.diagnosis) ? "لا توجد نتائج مطابقة للفلاتر." : "لا يوجد متعالجون بعد. ابدأ بإضافة متعالج جديد."}</p></div></td></tr>`
+      ? `<tr><td colspan="7"><div class="empty">${I.users}<p>${(f.search || f.doctor || f.diagnosis) ? t("emptyNoMatch") : t("emptyNoPatients")}</p></div></td></tr>`
       : rows;
 
     const filterBar = compact ? "" : `
       <div class="filterbar">
-        <div class="search">${I.search}<input id="patient-search" placeholder="ابحث بالاسم أو التشخيص..." value="${esc(f.search)}" /></div>
-        <label class="fsel">${I.stetho}<select data-filter="doctor">
-          <option value="">كل الأطباء</option>
-          ${DB.doctors.map((d) => `<option value="${d.id}" ${f.doctor === d.id ? "selected" : ""}>${esc(d.name)}</option>`).join("")}
-        </select></label>
-        <label class="fsel">${I.filter}<select data-filter="diagnosis">
-          <option value="">كل التشخيصات</option>
-          ${diagnoses.map((d) => `<option ${f.diagnosis === d ? "selected" : ""}>${esc(d)}</option>`).join("")}
-        </select></label>
+        <div class="search">${I.search}<input id="patient-search" placeholder="${t("phSearchNameDiag")}" value="${esc(f.search)}" /></div>
+        <label class="fsel">${I.stetho}<select data-filter="doctor"><option value="">${t("allDoctors")}</option>
+          ${DB.doctors.map((d) => `<option value="${d.id}" ${f.doctor === d.id ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select></label>
+        <label class="fsel">${I.filter}<select data-filter="diagnosis"><option value="">${t("allDiag")}</option>
+          ${diagnoses.map((d) => `<option ${f.diagnosis === d ? "selected" : ""}>${esc(d)}</option>`).join("")}</select></label>
         <label class="fsel">${I.sort}<select data-filter="sort">
-          <option value="recent" ${f.sort === "recent" ? "selected" : ""}>الأحدث جلسة</option>
-          <option value="progress-high" ${f.sort === "progress-high" ? "selected" : ""}>الأعلى تقدماً</option>
-          <option value="progress-low" ${f.sort === "progress-low" ? "selected" : ""}>الأقل تقدماً</option>
-          <option value="name" ${f.sort === "name" ? "selected" : ""}>الاسم (أ-ي)</option>
-        </select></label>
-        ${(f.search || f.doctor || f.diagnosis || f.sort !== "recent") ? `<button class="btn btn-ghost btn-sm" data-clear-filters>${I.x} مسح</button>` : ""}
+          <option value="recent" ${f.sort === "recent" ? "selected" : ""}>${t("sortRecent")}</option>
+          <option value="progress-high" ${f.sort === "progress-high" ? "selected" : ""}>${t("sortHigh")}</option>
+          <option value="progress-low" ${f.sort === "progress-low" ? "selected" : ""}>${t("sortLow")}</option>
+          <option value="name" ${f.sort === "name" ? "selected" : ""}>${t("sortName")}</option></select></label>
+        ${(f.search || f.doctor || f.diagnosis || f.sort !== "recent") ? `<button class="btn btn-ghost btn-sm" data-clear-filters>${I.x} ${t("clear")}</button>` : ""}
       </div>`;
 
     const inner = `
       <div class="card-head">
-        <h3>المتعالجين ${compact ? "" : `<span class="count">${list.length}</span>`}</h3>
+        <h3>${t("nPatients")} ${compact ? "" : `<span class="count">${list.length}</span>`}</h3>
         <div class="tools">
-          ${compact ? `<div class="search">${I.search}<input id="patient-search" placeholder="ابحث عن متعالج..." value="${esc(f.search)}" /></div>` : ""}
-          <button class="btn btn-primary" data-add>${I.plus} إضافة متعالج</button>
+          ${compact ? `<div class="search">${I.search}<input id="patient-search" placeholder="${t("phSearchPatient")}" value="${esc(f.search)}" /></div>` : ""}
+          ${editable ? `<button class="btn btn-primary" data-add>${I.plus} ${t("nAdd")}</button>` : ""}
         </div>
       </div>
       ${filterBar}
       <div class="table-wrap"><table class="patients">
-        <thead><tr><th>الاسم</th><th>العمر</th><th>التشخيص</th><th>الطبيب المعالج</th><th>آخر جلسة</th><th>التقدم</th><th>الإجراءات</th></tr></thead>
+        <thead><tr><th>${t("cName")}</th><th>${t("cAge")}</th><th>${t("cDiagnosis")}</th><th>${t("cDoctor")}</th><th>${t("cLast")}</th><th>${t("cProgress")}</th><th>${t("cActions")}</th></tr></thead>
         <tbody>${body}</tbody>
       </table></div>
-      ${hasMore ? `<div class="show-more"><button data-showall>عرض المزيد ${I.chevDown}</button></div>` : ""}`;
-
-    return compact ? `<div class="card">${inner}</div>` : `<div class="card">${inner}</div>`;
+      ${hasMore ? `<div class="show-more"><button data-showall>${t("showMore")} ${I.chevDown}</button></div>` : ""}`;
+    return `<div class="card">${inner}</div>`;
   }
 
   /* ============================================================
-     UPCOMING SESSIONS (all patients)
+     SECTION FILTER BAR (generic)
      ============================================================ */
-  function allSessions(onlyUpcoming) {
+  function sectionFilterBar(prefix, fields, searchPlaceholder) {
+    const f = state[prefix + "F"];
+    const active = fields.some(([k]) => f[k]) || (f.search && f.search.trim());
+    return `<div class="filterbar">
+      <div class="search">${I.search}<input data-secsearch="${prefix}" placeholder="${esc(searchPlaceholder)}" value="${esc(f.search || "")}" /></div>
+      ${fields.map(([key, allLabel, opts]) => `<label class="fsel">${I.filter}<select data-secfilter="${prefix}|${key}">
+        <option value="">${esc(allLabel)}</option>
+        ${opts.map(([v, l]) => `<option value="${esc(v)}" ${f[key] === v ? "selected" : ""}>${esc(l)}</option>`).join("")}
+      </select></label>`).join("")}
+      ${active ? `<button class="btn btn-ghost btn-sm" data-secclear="${prefix}">${I.x} ${t("clear")}</button>` : ""}
+    </div>`;
+  }
+
+  /* ============================================================
+     UPCOMING SESSIONS
+     ============================================================ */
+  function allSessions() {
     const out = [];
-    DB.patients.forEach((p) => p.sessions.forEach((s) =>
-      out.push(Object.assign({ patientId: p.id, patientName: p.name, doctorId: p.doctorId }, s))));
-    let list = out;
-    if (onlyUpcoming) list = list.filter((s) => isUpcoming(s.date));
-    list.sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")));
-    return list;
+    visiblePatients().forEach((p) => p.sessions.forEach((s) => out.push(Object.assign({ patientId: p.id, patientName: p.name, doctorId: p.doctorId }, s))));
+    out.sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")));
+    return out;
   }
 
   function SessionsView() {
-    const list = allSessions(false);
+    const f = state.sesF;
+    const editable = can("managePatients");
+    let list = allSessions();
+    if (f.doctor) list = list.filter((s) => s.doctorId === f.doctor);
+    if (f.patient) list = list.filter((s) => s.patientId === f.patient);
+    if (f.search.trim()) list = list.filter((s) => (s.title || "").includes(f.search.trim()) || s.patientName.includes(f.search.trim()));
     const upcoming = list.filter((s) => isUpcoming(s.date));
     const past = list.filter((s) => !isUpcoming(s.date)).reverse();
 
     const item = (s) => `
       <div class="session-item" data-go-patient="${s.patientId}">
-        <div class="date-chip"><b>${new Date(s.date).getDate()}</b><span>${new Intl.DateTimeFormat("ar-EG", { month: "short" }).format(new Date(s.date))}</span></div>
-        <div class="session-main">
-          <div class="st">${esc(s.title || "جلسة علاجية")}</div>
-          <div class="ss">${I.user} ${esc(s.patientName)} · ${I.clock} ${esc(s.time || "—")} · ${esc(doctorName(s.doctorId))}</div>
-        </div>
-        <div class="row-actions">
-          <button class="icon-btn" data-edit-session="${s.patientId}|${s.id}" title="تعديل">${I.edit}</button>
-          <button class="icon-btn danger" data-del-session="${s.patientId}|${s.id}" title="حذف">${I.trash}</button>
-        </div>
+        <div class="date-chip"><b>${new Date(s.date).getDate()}</b><span>${monthShort(s.date)}</span></div>
+        <div class="session-main"><div class="st">${esc(s.title || t("sesDefault"))}</div>
+          <div class="ss">${I.user} ${esc(s.patientName)} · ${I.clock} ${esc(s.time || "—")} · ${esc(doctorName(s.doctorId))}</div></div>
+        ${editable ? `<div class="row-actions">
+          <button class="icon-btn" data-edit-session="${s.patientId}|${s.id}" title="${t("ttEdit")}">${I.edit}</button>
+          <button class="icon-btn danger" data-del-session="${s.patientId}|${s.id}" title="${t("ttDelete")}">${I.trash}</button></div>` : ""}
       </div>`;
 
     return `
       <div class="card">
-        <div class="card-head"><h3>الجلسات القادمة <span class="count">${upcoming.length}</span></h3>
-          <div class="tools"><button class="btn btn-primary" data-add-session>${I.plus} جدولة جلسة</button></div></div>
-        ${upcoming.length === 0
-          ? `<div class="empty">${I.calendar}<p>لا توجد جلسات قادمة مجدولة.</p></div>`
-          : `<div class="session-list">${upcoming.map(item).join("")}</div>`}
+        <div class="card-head"><h3>${t("nSessions")} <span class="count">${upcoming.length}</span></h3>
+          <div class="tools">${editable ? `<button class="btn btn-primary" data-add-session>${I.plus} ${t("btnSchedule")}</button>` : ""}</div></div>
+        ${sectionFilterBar("ses", [["patient", t("allPatients"), visiblePatients().map((p) => [p.id, p.name])], ["doctor", t("allDoctors"), DB.doctors.map((d) => [d.id, d.name])]], t("phSearchSession"))}
+        ${upcoming.length === 0 ? `<div class="empty">${I.calendar}<p>${t("emptyNoUpcoming")}</p></div>` : `<div class="session-list">${upcoming.map(item).join("")}</div>`}
       </div>
-      ${past.length ? `<div class="card" style="margin-top:20px">
-        <div class="subhead"><h3>جلسات سابقة</h3><span class="count">${past.length}</span></div>
+      ${past.length ? `<div class="card" style="margin-top:20px"><div class="subhead"><h3>${t("sesPast")}</h3><span class="count">${past.length}</span></div>
         <div class="session-list muted">${past.map(item).join("")}</div></div>` : ""}`;
+  }
+
+  /* ============================================================
+     RECORDINGS (overview)
+     ============================================================ */
+  function RecordingsView() {
+    const f = state.recF;
+    const editable = can("manageRecordings");
+    let ps = visiblePatients().slice();
+    if (f.patient) ps = ps.filter((p) => p.id === f.patient);
+    if (f.doctor) ps = ps.filter((p) => p.doctorId === f.doctor);
+    const q = f.search.trim();
+    const groups = ps.map((p) => { let recs = p.recordings.slice().sort((a, b) => (b.date || "").localeCompare(a.date || "")); if (q) recs = recs.filter((r) => (r.title || "").includes(q)); return { p, recs }; }).filter((g) => g.recs.length);
+    const totalRecs = groups.reduce((n, g) => n + g.recs.length, 0);
+    return `
+      <div class="card">
+        <div class="card-head"><h3>${t("recTitle")} <span class="count">${totalRecs}</span></h3>
+          <div class="tools">${editable ? `<button class="btn btn-primary" data-add-recording>${I.plus} ${t("btnAddRec")}</button>` : ""}</div></div>
+        ${sectionFilterBar("rec", [["patient", t("allPatients"), visiblePatients().map((p) => [p.id, p.name])], ["doctor", t("allDoctors"), DB.doctors.map((d) => [d.id, d.name])]], t("phSearchRec"))}
+        ${totalRecs === 0
+          ? `<div class="empty">${I.video}<p>${q || f.patient || f.doctor ? t("emptyRecMatch") : t("emptyNoRec")}</p></div>`
+          : groups.map((g) => `<div class="group">
+              <div class="group-head" data-go-patient="${g.p.id}"><div class="ava md ${avaClass(g.p.id)}">${esc(initials(g.p.name))}</div>
+                <div><div class="gn">${esc(g.p.name)}</div><div class="gs">${ti("recCount", g.recs.length)}</div></div></div>
+              <div class="rec-list">${g.recs.map((r) => recordingItem(g.p, r, editable)).join("")}</div></div>`).join("")}
+      </div>`;
+  }
+
+  function recordingItem(p, r, editable) {
+    return `<div class="rec-item">
+      <div class="rec-ico">${I.video}</div>
+      <div class="rec-main"><div class="rn">${esc(r.title || t("recDefault"))}</div><div class="rs">${I.calendar} ${fmtDate(r.date)}</div></div>
+      ${r.url ? `<a class="btn btn-soft btn-sm" href="${esc(r.url)}" target="_blank" rel="noopener">${I.play} ${t("btnWatch")}</a>` : ""}
+      ${editable ? `<button class="icon-btn danger" data-del-rec="${p.id}|${r.id}" title="${t("ttDelete")}">${I.trash}</button>` : ""}
+    </div>`;
+  }
+
+  /* ============================================================
+     REPORTS / FILES (overview)
+     ============================================================ */
+  function ReportsView() {
+    const f = state.repF;
+    let ps = visiblePatients().slice();
+    if (f.patient) ps = ps.filter((p) => p.id === f.patient);
+    if (f.doctor) ps = ps.filter((p) => p.doctorId === f.doctor);
+    const q = f.search.trim();
+    const groups = ps.map((p) => { let files = p.files.slice().sort((a, b) => (b.date || "").localeCompare(a.date || "")); if (q) files = files.filter((x) => (x.name || "").includes(q)); return { p, files }; }).filter((g) => g.files.length);
+    const total = groups.reduce((n, g) => n + g.files.length, 0);
+    return `
+      <div class="card">
+        <div class="card-head"><h3>${t("nReports")} <span class="count">${total}</span></h3></div>
+        ${sectionFilterBar("rep", [["patient", t("allPatients"), visiblePatients().map((p) => [p.id, p.name])], ["doctor", t("allDoctors"), DB.doctors.map((d) => [d.id, d.name])]], t("phSearchFile"))}
+        ${total === 0
+          ? `<div class="empty">${I.file}<p>${q || f.patient || f.doctor ? t("emptyFileMatch") : t("emptyNoFiles")}</p></div>`
+          : groups.map((g) => `<div class="group">
+              <div class="group-head" data-go-patient="${g.p.id}"><div class="ava md ${avaClass(g.p.id)}">${esc(initials(g.p.name))}</div>
+                <div><div class="gn">${esc(g.p.name)}</div><div class="gs">${ti("filesCount", g.files.length)} · ${esc(doctorName(g.p.doctorId))}</div></div></div>
+              <div class="file-list">${g.files.map((x) => `
+                <div class="file-item"><div class="file-ico">${I.file}</div>
+                  <div class="file-meta"><div class="fn">${esc(x.name)}</div><div class="fs">${fmtSize(x.size)} · ${fmtDate(x.date)}</div></div>
+                  <button class="icon-btn" data-dl="${g.p.id}|${x.id}" title="${t("ttDownload")}">${I.download}</button>
+                </div>`).join("")}</div></div>`).join("")}
+      </div>`;
   }
 
   /* ============================================================
      ACTIVITY LOG
      ============================================================ */
   function LogView() {
+    const f = state.logF;
     let logs = DB.logs.slice();
-    if (state.logDoctor) logs = logs.filter((l) => l.doctorId === state.logDoctor);
-    const kindIco = { note: I.edit, progress: I.activity, plan: I.bulb, file: I.file, patient: I.userPlus, remove: I.trash, session: I.calendar, doctor: I.stetho, message: I.message, info: I.history };
-
+    if (f.doctor) logs = logs.filter((l) => l.doctorId === f.doctor);
+    if (f.kind) logs = logs.filter((l) => l.kind === f.kind);
+    if (f.search.trim()) logs = logs.filter((l) => (l.action || "").includes(f.search.trim()) || (l.patientName || "").includes(f.search.trim()) || (l.doctorName || "").includes(f.search.trim()));
+    const kindIco = { note: I.edit, progress: I.activity, plan: I.bulb, file: I.file, patient: I.userPlus, remove: I.trash, session: I.calendar, doctor: I.stetho, perms: I.key, recording: I.video, message: I.message, info: I.history };
+    const kindKeys = { note: "kNote", progress: "kProgress", plan: "kPlan", file: "kFile", patient: "kPatient", remove: "kRemove", session: "kSession", doctor: "kDoctor", perms: "kPerms", recording: "kRecording", message: "kMessage" };
     return `
       <div class="card">
-        <div class="card-head"><h3>سجل النشاط <span class="count">${logs.length}</span></h3>
-          <div class="tools"><label class="fsel">${I.stetho}<select data-log-doctor>
-            <option value="">كل الأطباء</option>
-            ${DB.doctors.map((d) => `<option value="${d.id}" ${state.logDoctor === d.id ? "selected" : ""}>${esc(d.name)}</option>`).join("")}
-          </select></label></div></div>
-        ${logs.length === 0
-          ? `<div class="empty">${I.history}<p>لا توجد أحداث مسجّلة بعد.</p></div>`
+        <div class="card-head"><h3>${t("nLog")} <span class="count">${logs.length}</span></h3></div>
+        ${sectionFilterBar("log", [["doctor", t("allDoctors"), DB.doctors.map((d) => [d.id, d.name])], ["kind", t("allKinds"), Object.keys(kindKeys).map((k) => [k, t(kindKeys[k])])]], t("phSearchLog"))}
+        ${logs.length === 0 ? `<div class="empty">${I.history}<p>${t("emptyNoEvents")}</p></div>`
           : `<div class="log-list">${logs.map((l) => `
               <div class="log-item ${l.patientId ? "clickable" : ""}" ${l.patientId ? `data-go-patient="${l.patientId}"` : ""}>
                 <div class="log-ico">${kindIco[l.kind] || I.history}</div>
-                <div class="log-main">
-                  <div class="lt"><b>${esc(l.doctorName)}</b> ${esc(l.action)}${l.patientName ? ` — <span class="lp">${esc(l.patientName)}</span>` : ""}</div>
-                  <div class="ls">${I.clock} ${fmtDateTime(l.ts)}</div>
-                </div>
-              </div>`).join("")}</div>`}
+                <div class="log-main"><div class="lt"><b>${esc(l.doctorName)}</b> ${esc(l.action)}${l.patientName ? ` — <span class="lp">${esc(l.patientName)}</span>` : ""}</div>
+                  <div class="ls">${I.clock} ${fmtDateTime(l.ts)}</div></div></div>`).join("")}</div>`}
       </div>`;
   }
 
@@ -575,25 +928,32 @@
      ============================================================ */
   function DoctorsView() {
     const me = currentDoctor();
-    if (!me || me.role !== "main") return `<div class="card"><div class="empty">${I.shield}<p>هذه الصفحة متاحة للطبيب الرئيسي فقط.</p></div></div>`;
+    if (!me || me.role !== "main") return `<div class="card"><div class="empty">${I.shield}<p>${t("onlyMain")}</p></div></div>`;
     const counts = {};
     DB.patients.forEach((p) => counts[p.doctorId] = (counts[p.doctorId] || 0) + 1);
+    const q = state.docSearch.trim();
+    let docs = DB.doctors.slice();
+    if (q) docs = docs.filter((d) => d.name.includes(q) || d.username.includes(q));
     return `
       <div class="card">
-        <div class="card-head"><h3>الأطباء <span class="count">${DB.doctors.length}</span></h3>
-          <div class="tools"><button class="btn btn-primary" data-add-doctor>${I.plus} إضافة طبيب</button></div></div>
+        <div class="card-head"><h3>${t("nDoctors")} <span class="count">${DB.doctors.length}</span></h3>
+          <div class="tools"><div class="search">${I.search}<input data-docsearch placeholder="${t("phSearchDoctor")}" value="${esc(state.docSearch)}" /></div>
+            <button class="btn btn-primary" data-add-doctor>${I.plus} ${t("btnAddDoctor")}</button></div></div>
         <div class="doctor-list">
-          ${DB.doctors.map((d) => `
-            <div class="doctor-item">
+          ${docs.map((d) => {
+            const perms = d.role === "main" ? ALL_PERMS : ALL_PERMS.filter((k) => d.permissions && d.permissions[k]);
+            return `<div class="doctor-item">
               <div class="ava md ${avaClass(d.id)}">${esc(initials(d.name))}</div>
               <div class="doctor-main">
-                <div class="dn">${esc(d.name)} ${d.role === "main" ? `<span class="role-tag main">${I.shield} رئيسي</span>` : `<span class="role-tag">طبيب</span>`}</div>
-                <div class="ds">${esc(d.title)} · المستخدم: <b>${esc(d.username)}</b> · ${counts[d.id] || 0} متعالج</div>
+                <div class="dn">${esc(d.name)} ${d.role === "main" ? `<span class="role-tag main">${I.shield} ${t("roleMain")}</span>` : `<span class="role-tag">${t("roleDoc")}</span>`}</div>
+                <div class="ds">${esc(d.title)} · ${t("lblUser")}: <b>${esc(d.username)}</b> · ${counts[d.id] || 0} ${t("unitPatients")}</div>
+                <div class="perm-chips">${perms.length ? perms.map((k) => `<span class="perm-chip">${t(PERM_KEY[k])}</span>`).join("") : `<span class="perm-chip none">${t("permNone")}</span>`}</div>
               </div>
-              ${d.role === "main" ? "" : `<button class="icon-btn danger" data-del-doctor="${d.id}" title="حذف">${I.trash}</button>`}
-            </div>`).join("")}
+              <div class="row-actions"><button class="icon-btn" data-edit-doctor="${d.id}" title="${t("ttEdit")}">${I.edit}</button>
+                ${d.role === "main" ? "" : `<button class="icon-btn danger" data-del-doctor="${d.id}" title="${t("ttDelete")}">${I.trash}</button>`}</div>
+            </div>`;
+          }).join("")}
         </div>
-        <div class="login-hint" style="margin-top:18px">${I.shield} <b>الطبيب الرئيسي فقط</b> يمكنه إنشاء حسابات أطباء جدد.</div>
       </div>`;
   }
 
@@ -601,123 +961,137 @@
      PROFILE
      ============================================================ */
   function ProfileView(p, readonly) {
-    if (!p) return `<div class="card"><div class="empty">${I.user}<p>المتعالج غير موجود.</p></div></div>`;
+    if (!p) return `<div class="card"><div class="empty">${I.user}<p>—</p></div></div>`;
+    const canEdit = !readonly && can("managePatients");
+    const canRec = readonly ? false : can("manageRecordings");
+    const canChat = readonly ? true : can("chat");
     const notes = p.notes.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""));
     const sessions = p.sessions.slice().sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")));
     const upcoming = sessions.filter((s) => isUpcoming(s.date));
+    const past = sessions.filter((s) => !isUpcoming(s.date)).reverse();
+    const recordings = p.recordings.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    const unreadFromParent = p.chat.filter((m) => m.from === "parent" && !m.read).length;
     const ringC = 2 * Math.PI * 54;
     const dash = ringC * (1 - p.progress / 100);
     const doc = getDoctor(p.doctorId);
 
-    return `
-      ${readonly ? "" : `<button class="back-link" data-back>${I.arrowR} رجوع إلى القائمة</button>`}
-      <div class="card">
-        <div class="profile-hero">
-          <div class="ava lg ${avaClass(p.id)}">${esc(initials(p.name))}</div>
-          <div class="info">
-            <h2>${esc(p.name)}</h2>
-            <div class="meta-row">
-              <span>${I.cake} ${esc(p.age)} سنوات</span>
-              <span>${I.user} ${esc(p.gender || "—")}</span>
-              <span>${I.activity} ${esc(p.diagnosis)}</span>
-              <span>${I.stetho} ${esc(doc ? doc.name : "—")}</span>
-              <span>${I.clock} آخر جلسة: ${fmtDate(p.lastSession)}</span>
-            </div>
-          </div>
-          ${readonly
-            ? `<span class="ro-badge">${I.eye} عرض فقط</span>`
-            : `<div class="profile-actions">
-                 <button class="btn btn-soft" data-edit="${p.id}">${I.edit} تعديل</button>
-                 <button class="btn btn-primary" data-add-note="${p.id}">${I.plus} ملاحظة</button>
-                 <button class="btn btn-danger" data-remove="${p.id}">${I.trash} حذف</button>
-               </div>`}
-        </div>
-      </div>
+    const heroActions = readonly
+      ? `<div class="profile-actions">
+           ${canChat ? `<button class="btn btn-primary" data-chat="${p.id}">${I.chat} ${t("actChatTher")}${parentUnread(p) ? ` <span class="ibadge">${parentUnread(p)}</span>` : ""}</button>` : ""}
+           <button class="btn btn-soft" data-edit-parent="${p.id}">${I.edit} ${t("actEditDetails")}</button>
+           <span class="ro-badge">${I.eye} ${t("badgeReadonly")}</span></div>`
+      : `<div class="profile-actions">
+           ${canChat ? `<button class="btn btn-soft" data-chat="${p.id}">${I.chat} ${t("actChat")}${unreadFromParent ? ` <span class="ibadge">${unreadFromParent}</span>` : ""}</button>` : ""}
+           ${canEdit ? `<button class="btn btn-soft" data-edit="${p.id}">${I.edit} ${t("ttEdit")}</button>
+           <button class="btn btn-primary" data-add-note="${p.id}">${I.plus} ${t("actNote")}</button>
+           <button class="btn btn-danger" data-remove="${p.id}">${I.trash} ${t("ttDelete")}</button>` : ""}
+         </div>`;
 
+    const heroHTML = `<div class="card"><div class="profile-hero">
+        <div class="ava lg ${avaClass(p.id)}">${esc(initials(p.name))}</div>
+        <div class="info"><h2>${esc(p.name)}</h2>
+          <div class="meta-row">
+            <span>${I.cake} ${esc(p.age)} ${t("years")}</span>
+            <span>${I.user} ${genderText(p.gender)}</span>
+            <span>${I.activity} ${esc(p.diagnosis)}</span>
+            <span>${I.stetho} ${esc(doc ? doc.name : "—")}</span>
+            <span>${I.clock} ${t("lastSessionLbl")}: ${fmtDate(p.lastSession)}</span>
+          </div></div>
+        ${heroActions}
+      </div></div>`;
+
+    const pastCard = `
+          <div class="card">
+            <div class="subhead"><h3>${t("sesPast")}</h3><span class="count">${past.length}</span></div>
+            ${past.length === 0 ? `<div class="empty">${I.clock}<p>${t("emptyPast")}</p></div>`
+              : `<div class="session-list muted">${past.map((s) => `
+                  <div class="session-item"><div class="date-chip past"><b>${new Date(s.date).getDate()}</b><span>${monthShort(s.date)}</span></div>
+                    <div class="session-main"><div class="st">${esc(s.title || t("sesDefault"))}</div><div class="ss">${I.clock} ${esc(s.time || "—")} · ${fmtDate(s.date)}</div></div>
+                  </div>`).join("")}</div>`}
+          </div>`;
+
+    return `
+      ${readonly ? "" : `<button class="back-link" data-back>${I.arrowBack} ${t("back")}</button>`}
+      ${heroHTML}
       <div class="profile-grid">
         <div class="stack">
           <div class="card">
-            <div class="subhead"><h3>بيانات المتعالج</h3></div>
+            <div class="subhead"><h3>${t("secInfo")}</h3></div>
             <div class="info-list">
-              <div class="it"><div class="k">ولي الأمر</div><div class="v">${esc(p.guardian || "—")}</div></div>
-              <div class="it"><div class="k">رقم التواصل</div><div class="v">${esc(p.phone || "—")}</div></div>
-              <div class="it"><div class="k">العمر</div><div class="v">${esc(p.age)} سنوات</div></div>
-              <div class="it"><div class="k">الجنس</div><div class="v">${esc(p.gender || "—")}</div></div>
-              <div class="it"><div class="k">التشخيص</div><div class="v">${esc(p.diagnosis)}</div></div>
-              <div class="it"><div class="k">الطبيب المعالج</div><div class="v">${esc(doc ? doc.name : "—")}</div></div>
+              <div class="it"><div class="k">${t("lblParent")}</div><div class="v">${esc(p.guardian || "—")}</div></div>
+              <div class="it"><div class="k">${t("lblPhone")}</div><div class="v">${esc(p.phone || "—")}</div></div>
+              <div class="it"><div class="k">${t("cAge")}</div><div class="v">${esc(p.age)} ${t("years")}</div></div>
+              <div class="it"><div class="k">${t("lblBirth")}</div><div class="v">${p.birthDate ? fmtDate(p.birthDate) : "—"}</div></div>
+              <div class="it"><div class="k">${t("lblGender")}</div><div class="v">${genderText(p.gender)}</div></div>
+              <div class="it"><div class="k">${t("cDiagnosis")}</div><div class="v">${esc(p.diagnosis)}</div></div>
+              <div class="it"><div class="k">${t("cDoctor")}</div><div class="v">${esc(doc ? doc.name : "—")}</div></div>
             </div>
           </div>
 
-          <!-- Upcoming sessions -->
           <div class="card">
-            <div class="subhead"><h3>الجلسات القادمة</h3><span class="count">${upcoming.length}</span><span class="grow"></span>
-              ${readonly ? "" : `<button class="btn btn-soft btn-sm" data-add-session-for="${p.id}">${I.plus} جدولة</button>`}
-            </div>
-            ${upcoming.length === 0
-              ? `<div class="empty">${I.calendar}<p>لا توجد جلسات قادمة.</p></div>`
+            <div class="subhead"><h3>${t("secUpcoming")}</h3><span class="count">${upcoming.length}</span><span class="grow"></span>
+              ${canEdit ? `<button class="btn btn-soft btn-sm" data-add-session-for="${p.id}">${I.plus} ${t("btnScheduleShort")}</button>` : ""}</div>
+            ${upcoming.length === 0 ? `<div class="empty">${I.calendar}<p>${t("emptyUpcomingP")}</p></div>`
               : `<div class="session-list">${upcoming.map((s) => `
-                  <div class="session-item">
-                    <div class="date-chip"><b>${new Date(s.date).getDate()}</b><span>${new Intl.DateTimeFormat("ar-EG", { month: "short" }).format(new Date(s.date))}</span></div>
-                    <div class="session-main"><div class="st">${esc(s.title || "جلسة علاجية")}</div><div class="ss">${I.clock} ${esc(s.time || "—")} · ${fmtDate(s.date)}</div></div>
-                    ${readonly ? "" : `<div class="row-actions">
-                      <button class="icon-btn" data-edit-session="${p.id}|${s.id}" title="تعديل">${I.edit}</button>
-                      <button class="icon-btn danger" data-del-session="${p.id}|${s.id}" title="حذف">${I.trash}</button></div>`}
+                  <div class="session-item"><div class="date-chip"><b>${new Date(s.date).getDate()}</b><span>${monthShort(s.date)}</span></div>
+                    <div class="session-main"><div class="st">${esc(s.title || t("sesDefault"))}</div><div class="ss">${I.clock} ${esc(s.time || "—")} · ${fmtDate(s.date)}</div></div>
+                    ${canEdit ? `<div class="row-actions">
+                      <button class="icon-btn" data-edit-session="${p.id}|${s.id}" title="${t("ttEdit")}">${I.edit}</button>
+                      <button class="icon-btn danger" data-del-session="${p.id}|${s.id}" title="${t("ttDelete")}">${I.trash}</button></div>` : ""}
                   </div>`).join("")}</div>`}
           </div>
+${pastCard}
+          <div class="card">
+            <div class="subhead"><h3>${t("secRecordings")}</h3><span class="count">${recordings.length}</span><span class="grow"></span>
+              ${canRec ? `<button class="btn btn-soft btn-sm" data-add-recording-for="${p.id}">${I.plus} ${t("btnAdd")}</button>` : ""}</div>
+            ${recordings.length === 0 ? `<div class="empty">${I.video}<p>${t("emptyRecP")}</p></div>`
+              : `<div class="rec-list">${recordings.map((r) => recordingItem(p, r, canRec)).join("")}</div>`}
+          </div>
 
           <div class="card">
-            <div class="subhead"><h3>ملاحظات الجلسات</h3><span class="count">${p.notes.length}</span><span class="grow"></span>
-              ${readonly ? "" : `<button class="btn btn-soft btn-sm" data-add-note="${p.id}">${I.plus} إضافة</button>`}</div>
-            ${notes.length === 0
-              ? `<div class="empty">${I.edit}<p>لا توجد ملاحظات بعد.</p></div>`
+            <div class="subhead"><h3>${t("secNotes")}</h3><span class="count">${p.notes.length}</span><span class="grow"></span>
+              ${canEdit ? `<button class="btn btn-soft btn-sm" data-add-note="${p.id}">${I.plus} ${t("btnAdd")}</button>` : ""}</div>
+            ${notes.length === 0 ? `<div class="empty">${I.edit}<p>${t("emptyNotes")}</p></div>`
               : `<div class="timeline">${notes.map((n) => `
-                  <div class="note-item"><div class="nh">
-                    <span class="date">${I.calendar} ${fmtDate(n.date)}</span>
-                    ${readonly ? "" : `<button class="icon-btn btn-sm del" data-del-note="${p.id}|${n.id}" title="حذف">${I.trash}</button>`}
+                  <div class="note-item"><div class="nh"><span class="date">${I.calendar} ${fmtDate(n.date)}</span>
+                    ${canEdit ? `<button class="icon-btn btn-sm del" data-del-note="${p.id}|${n.id}" title="${t("ttDelete")}">${I.trash}</button>` : ""}
                   </div><p>${esc(n.text)}</p></div>`).join("")}</div>`}
           </div>
         </div>
 
         <div class="stack">
           <div class="card">
-            <div class="subhead"><h3>نسبة التقدم</h3><span class="grow"></span>
-              ${readonly ? "" : `<button class="icon-btn btn-sm" data-edit-progress="${p.id}" title="تحديث">${I.edit}</button>`}</div>
-            <div class="progress-big">
-              <div class="ring"><svg width="132" height="132">
+            <div class="subhead"><h3>${t("secProgress")}</h3><span class="grow"></span>
+              ${canEdit ? `<button class="icon-btn btn-sm" data-edit-progress="${p.id}" title="${t("ttEdit")}">${I.edit}</button>` : ""}</div>
+            <div class="progress-big"><div class="ring"><svg width="132" height="132">
                 <circle cx="66" cy="66" r="54" fill="none" stroke="#eceef5" stroke-width="12"/>
                 <circle cx="66" cy="66" r="54" fill="none" stroke="#7c6fd6" stroke-width="12" stroke-linecap="round" stroke-dasharray="${ringC.toFixed(1)}" stroke-dashoffset="${dash.toFixed(1)}"/>
-              </svg><div class="num">${p.progress}%</div></div>
-              <div class="lbl">من خطة العلاج المستهدفة</div>
-            </div>
+              </svg><div class="num">${p.progress}%</div></div><div class="lbl">${t("progressLbl")}</div></div>
           </div>
 
           <div class="card">
-            <div class="subhead"><h3>خطة العلاج القادمة</h3><span class="grow"></span>
-              ${readonly ? "" : `<button class="icon-btn btn-sm" data-edit-plan="${p.id}" title="تعديل">${I.edit}</button>`}</div>
-            ${p.plan ? `<div class="plan-box">${esc(p.plan)}</div>` : `<div class="plan-box empty-plan">لم تتم إضافة خطة علاجية قادمة بعد.</div>`}
+            <div class="subhead"><h3>${t("secPlan")}</h3><span class="grow"></span>
+              ${canEdit ? `<button class="icon-btn btn-sm" data-edit-plan="${p.id}" title="${t("ttEdit")}">${I.edit}</button>` : ""}</div>
+            ${p.plan ? `<div class="plan-box">${esc(p.plan)}</div>` : `<div class="plan-box empty-plan">${t("emptyPlan")}</div>`}
           </div>
 
           <div class="card">
-            <div class="subhead"><h3>الملفات والتقارير</h3><span class="count">${p.files.length}</span><span class="grow"></span>
-              ${readonly ? "" : `<button class="btn btn-soft btn-sm" data-upload="${p.id}">${I.upload} رفع</button>`}</div>
-            ${p.files.length === 0
-              ? `<div class="empty">${I.file}<p>لا توجد ملفات مرفوعة.</p></div>`
+            <div class="subhead"><h3>${t("secFiles")}</h3><span class="count">${p.files.length}</span><span class="grow"></span>
+              ${canEdit ? `<button class="btn btn-soft btn-sm" data-upload="${p.id}">${I.upload} ${t("btnUpload")}</button>` : ""}</div>
+            ${p.files.length === 0 ? `<div class="empty">${I.file}<p>${t("emptyFilesP")}</p></div>`
               : `<div class="file-list">${p.files.map((f) => `
                   <div class="file-item"><div class="file-ico">${I.file}</div>
                     <div class="file-meta"><div class="fn">${esc(f.name)}</div><div class="fs">${fmtSize(f.size)} · ${fmtDate(f.date)}</div></div>
-                    ${f.data ? `<a class="icon-btn" href="${f.data}" download="${esc(f.name)}" title="تنزيل">${I.download}</a>` : ""}
-                    ${readonly ? "" : `<button class="icon-btn danger" data-del-file="${p.id}|${f.id}" title="حذف">${I.trash}</button>`}
+                    <button class="icon-btn" data-dl="${p.id}|${f.id}" title="${t("ttDownload")}">${I.download}</button>
+                    ${canEdit ? `<button class="icon-btn danger" data-del-file="${p.id}|${f.id}" title="${t("ttDelete")}">${I.trash}</button>` : ""}
                   </div>`).join("")}</div>`}
           </div>
 
-          ${readonly ? "" : `
-          <div class="card">
-            <div class="subhead"><h3>حساب ولي الأمر</h3></div>
+          ${canEdit ? `<div class="card"><div class="subhead"><h3>${t("secParentAcc")}</h3></div>
             <div class="credentials">
-              <div class="crow"><span class="k">اسم المستخدم</span><span class="v">${esc(p.parentUsername || "—")}</span></div>
-              <div class="crow"><span class="k">كلمة المرور</span><span class="v">${esc(p.parentPassword || "—")}</span></div>
-            </div>
-          </div>`}
+              <div class="crow"><span class="k">${t("username")}</span><span class="v">${esc(p.parentUsername || "—")}</span></div>
+              <div class="crow"><span class="k">${t("password")}</span><span class="v">${esc(p.parentPassword || "—")}</span></div>
+            </div></div>` : ""}
         </div>
       </div>`;
   }
@@ -726,64 +1100,68 @@
      Bind content events (therapist)
      ============================================================ */
   function bindContent() {
-    // stat cards
     $$("[data-gonav]").forEach((b) => b.addEventListener("click", () => { state.route = b.dataset.gonav; state.showAll = false; render(); }));
-    // search (compact + filter bar)
     const s = $("#patient-search");
-    if (s) s.addEventListener("input", () => {
-      state.filters.search = s.value; renderTherapistContent();
-      const ns = $("#patient-search"); if (ns) { ns.focus(); ns.setSelectionRange(ns.value.length, ns.value.length); }
-    });
+    if (s) s.addEventListener("input", () => { state.filters.search = s.value; renderTherapistContent(); const ns = $("#patient-search"); if (ns) { ns.focus(); ns.setSelectionRange(ns.value.length, ns.value.length); } });
     $$("[data-filter]").forEach((sel) => sel.addEventListener("change", () => { state.filters[sel.dataset.filter] = sel.value; renderTherapistContent(); }));
     const cf = $("[data-clear-filters]"); if (cf) cf.addEventListener("click", () => { state.filters = { search: "", doctor: "", diagnosis: "", sort: "recent" }; renderTherapistContent(); });
-    const ld = $("[data-log-doctor]"); if (ld) ld.addEventListener("change", () => { state.logDoctor = ld.value; renderTherapistContent(); });
+    $$("[data-secsearch]").forEach((inp) => inp.addEventListener("input", () => { state[inp.dataset.secsearch + "F"].search = inp.value; renderTherapistContent(); const ni = $(`[data-secsearch="${inp.dataset.secsearch}"]`); if (ni) { ni.focus(); ni.setSelectionRange(ni.value.length, ni.value.length); } }));
+    $$("[data-secfilter]").forEach((sel) => sel.addEventListener("change", () => { const [pre, key] = sel.dataset.secfilter.split("|"); state[pre + "F"][key] = sel.value; renderTherapistContent(); }));
+    $$("[data-secclear]").forEach((b) => b.addEventListener("click", () => { const pre = b.dataset.secclear; Object.keys(state[pre + "F"]).forEach((k) => state[pre + "F"][k] = ""); renderTherapistContent(); }));
+    const ds = $("[data-docsearch]"); if (ds) ds.addEventListener("input", () => { state.docSearch = ds.value; renderTherapistContent(); const n = $("[data-docsearch]"); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } });
 
     $$("[data-add]").forEach((b) => b.addEventListener("click", () => openPatientModal(null)));
     $$("[data-showall]").forEach((b) => b.addEventListener("click", () => { state.showAll = true; renderTherapistContent(); }));
     $$("[data-open]").forEach((b) => b.addEventListener("click", () => { state.patientId = b.dataset.open; state.route = "profile"; render(); }));
     $$("[data-row]").forEach((tr) => tr.addEventListener("click", (e) => { if (e.target.closest("button")) return; state.patientId = tr.dataset.row; state.route = "profile"; render(); }));
-    $$("[data-go-patient]").forEach((el) => el.addEventListener("click", (e) => { if (e.target.closest("button")) return; state.patientId = el.dataset.goPatient; state.route = "profile"; render(); }));
+    $$("[data-go-patient]").forEach((el) => el.addEventListener("click", (e) => { if (e.target.closest("button,a")) return; state.patientId = el.dataset.goPatient; state.route = "profile"; render(); }));
     $$("[data-edit]").forEach((b) => b.addEventListener("click", () => openPatientModal(getPatient(b.dataset.edit))));
     $$("[data-remove]").forEach((b) => b.addEventListener("click", () => removePatient(b.dataset.remove)));
     $$("[data-back]").forEach((b) => b.addEventListener("click", () => { state.route = "patients"; state.patientId = null; render(); }));
+    $$("[data-chat]").forEach((b) => b.addEventListener("click", () => openChatModal(b.dataset.chat)));
 
     $$("[data-add-note]").forEach((b) => b.addEventListener("click", () => openNoteModal(b.dataset.addNote)));
-    $$("[data-del-note]").forEach((b) => b.addEventListener("click", () => {
-      const [pid, nid] = b.dataset.delNote.split("|"); const p = getPatient(pid);
-      p.notes = p.notes.filter((n) => n.id !== nid); logEvent("حذف ملاحظة جلسة", { patientName: p.name, patientId: p.id, kind: "note" });
-      saveDB(); renderTherapistContent(); toast("تم حذف الملاحظة");
-    }));
+    $$("[data-del-note]").forEach((b) => b.addEventListener("click", () => { const [pid, nid] = b.dataset.delNote.split("|"); const p = getPatient(pid); p.notes = p.notes.filter((n) => n.id !== nid); logEvent(t("aDelNote"), { patientName: p.name, patientId: p.id, kind: "note" }); saveDB(); renderTherapistContent(); toast(t("tNoteDeleted")); }));
     $$("[data-edit-progress]").forEach((b) => b.addEventListener("click", () => openProgressModal(b.dataset.editProgress)));
     $$("[data-edit-plan]").forEach((b) => b.addEventListener("click", () => openPlanModal(b.dataset.editPlan)));
     $$("[data-upload]").forEach((b) => b.addEventListener("click", () => openUploadModal(b.dataset.upload)));
-    $$("[data-del-file]").forEach((b) => b.addEventListener("click", () => {
-      const [pid, fid] = b.dataset.delFile.split("|"); const p = getPatient(pid);
-      p.files = p.files.filter((f) => f.id !== fid); logEvent("حذف ملفاً", { patientName: p.name, patientId: p.id, kind: "file" });
-      saveDB(); renderTherapistContent(); toast("تم حذف الملف");
-    }));
+    $$("[data-del-file]").forEach((b) => b.addEventListener("click", () => { const [pid, fid] = b.dataset.delFile.split("|"); const p = getPatient(pid); p.files = p.files.filter((f) => f.id !== fid); logEvent(t("aDelFile"), { patientName: p.name, patientId: p.id, kind: "file" }); saveDB(); renderTherapistContent(); toast(t("tFileDeleted")); }));
 
-    // sessions
     $$("[data-add-session]").forEach((b) => b.addEventListener("click", () => openSessionModal(null, null)));
     $$("[data-add-session-for]").forEach((b) => b.addEventListener("click", () => openSessionModal(b.dataset.addSessionFor, null)));
     $$("[data-edit-session]").forEach((b) => b.addEventListener("click", () => { const [pid, sid] = b.dataset.editSession.split("|"); openSessionModal(pid, sid); }));
-    $$("[data-del-session]").forEach((b) => b.addEventListener("click", () => {
-      const [pid, sid] = b.dataset.delSession.split("|"); const p = getPatient(pid);
-      p.sessions = p.sessions.filter((x) => x.id !== sid); logEvent("ألغى جلسة قادمة", { patientName: p.name, patientId: p.id, kind: "session" });
-      saveDB(); renderTherapistContent(); toast("تم حذف الجلسة");
-    }));
+    $$("[data-del-session]").forEach((b) => b.addEventListener("click", () => { const [pid, sid] = b.dataset.delSession.split("|"); const p = getPatient(pid); p.sessions = p.sessions.filter((x) => x.id !== sid); logEvent(t("aDelSession"), { patientName: p.name, patientId: p.id, kind: "session" }); saveDB(); renderTherapistContent(); toast(t("tSessionDeleted")); }));
 
-    // doctors
-    $$("[data-add-doctor]").forEach((b) => b.addEventListener("click", openDoctorModal));
+    $$("[data-add-recording]").forEach((b) => b.addEventListener("click", () => openRecordingModal(null)));
+    $$("[data-add-recording-for]").forEach((b) => b.addEventListener("click", () => openRecordingModal(b.dataset.addRecordingFor)));
+    $$("[data-del-rec]").forEach((b) => b.addEventListener("click", () => { const [pid, rid] = b.dataset.delRec.split("|"); const p = getPatient(pid); p.recordings = p.recordings.filter((x) => x.id !== rid); logEvent(t("aDelRec"), { patientName: p.name, patientId: p.id, kind: "recording" }); saveDB(); renderTherapistContent(); toast(t("tRecDeleted")); }));
+
+    $$("[data-add-doctor]").forEach((b) => b.addEventListener("click", () => openDoctorModal(null)));
+    $$("[data-edit-doctor]").forEach((b) => b.addEventListener("click", () => openDoctorModal(b.dataset.editDoctor)));
     $$("[data-del-doctor]").forEach((b) => b.addEventListener("click", () => removeDoctor(b.dataset.delDoctor)));
+    bindDownloads();
+  }
+
+  function bindDownloads() {
+    $$("[data-dl]").forEach((b) => b.addEventListener("click", () => { const [pid, fid] = b.dataset.dl.split("|"); downloadFile(pid, fid); }));
+  }
+  function downloadFile(pid, fid) {
+    const p = getPatient(pid); if (!p) return;
+    const f = p.files.find((x) => x.id === fid); if (!f) return;
+    const a = document.createElement("a");
+    if (f.data) { a.href = f.data; a.download = f.name; }
+    else { const blob = new Blob([f.name + "\n\n(demo file — original content was not stored)"], { type: "text/plain;charset=utf-8" }); a.href = URL.createObjectURL(blob); a.download = f.name.replace(/\.[^.]+$/, "") + ".txt"; setTimeout(() => URL.revokeObjectURL(a.href), 5000); }
+    document.body.appendChild(a); a.click(); a.remove();
+    toast(ti("tDownloading", f.name));
   }
 
   /* ============================================================
      MODALS / DIALOGS
      ============================================================ */
-  function openModal(html) {
+  function openModal(html, onClose) {
     const root = $("#modal-root");
     root.innerHTML = `<div class="modal-scrim" data-scrim>${html}</div>`;
-    const close = () => { root.innerHTML = ""; document.removeEventListener("keydown", onKey); };
+    const close = () => { root.innerHTML = ""; document.removeEventListener("keydown", onKey); if (onClose) onClose(); };
     function onKey(e) { if (e.key === "Escape") close(); }
     $("[data-scrim]").addEventListener("mousedown", (e) => { if (e.target === e.currentTarget) close(); });
     $$("[data-modal-close]").forEach((b) => b.addEventListener("click", close));
@@ -793,17 +1171,14 @@
   const ctl = (label, inner) => `<div class="field"><label>${label}</label><div class="control">${inner}</div></div>`;
 
   function confirmDialog(opts, onYes) {
-    const html = `
-      <div class="modal sm">
+    const html = `<div class="modal sm">
         <div class="modal-body" style="text-align:center;padding-top:26px">
           <div class="confirm-ico ${opts.danger ? "danger" : ""}">${opts.danger ? I.trash : I.check}</div>
           <h3 style="margin:14px 0 6px">${esc(opts.title)}</h3>
-          <p style="color:var(--text-soft);margin:0;line-height:1.8">${esc(opts.message)}</p>
-        </div>
+          <p style="color:var(--text-soft);margin:0;line-height:1.8">${esc(opts.message)}</p></div>
         <div class="modal-foot" style="justify-content:center">
-          <button class="btn ${opts.danger ? "btn-danger" : "btn-primary"}" data-yes>${esc(opts.confirm || "تأكيد")}</button>
-          <button class="btn btn-ghost" data-modal-close>إلغاء</button>
-        </div>
+          <button class="btn ${opts.danger ? "btn-danger" : "btn-primary"}" data-yes>${esc(opts.confirm || t("confirm"))}</button>
+          <button class="btn btn-ghost" data-modal-close>${t("cancel")}</button></div>
       </div>`;
     const close = openModal(html);
     $("[data-yes]").addEventListener("click", () => { close(); onYes(); });
@@ -811,114 +1186,79 @@
 
   function removePatient(pid) {
     const p = getPatient(pid); if (!p) return;
-    confirmDialog({ danger: true, title: "حذف المتعالج", confirm: "نعم، احذف",
-      message: `سيتم حذف ملف "${p.name}" نهائياً مع جميع الملاحظات والملفات. لا يمكن التراجع.` }, () => {
+    confirmDialog({ danger: true, title: t("delPatientTitle"), confirm: t("confirmYes"), message: ti("delPatientMsg", p.name) }, () => {
       DB.patients = DB.patients.filter((x) => x.id !== pid);
-      logEvent("حذف ملف المتعالج", { patientName: p.name, kind: "remove" });
-      saveDB(); state.route = "patients"; state.patientId = null; render(); toast("تم حذف المتعالج");
+      logEvent(t("aDelPatient"), { patientName: p.name, kind: "remove" });
+      saveDB(); state.route = "patients"; state.patientId = null; render(); toast(t("tPatientDeleted"));
     });
   }
 
   function openPatientModal(p) {
+    if (!can("managePatients")) return;
     const editing = !!p; p = p || {};
     const docOpts = DB.doctors.map((d) => `<option value="${d.id}" ${p.doctorId === d.id ? "selected" : ""}>${esc(d.name)}</option>`).join("");
-    const html = `
-      <div class="modal">
-        <div class="modal-head"><h3>${editing ? "تعديل بيانات المتعالج" : "إضافة متعالج جديد"}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
-        <form id="patient-form">
-          <div class="modal-body">
+    const html = `<div class="modal">
+        <div class="modal-head"><h3>${editing ? t("mEditPatient") : t("mAddPatient")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+        <form id="patient-form"><div class="modal-body">
             <div class="grid-2">
-              ${ctl("الاسم الكامل", `<input name="name" required value="${esc(p.name || "")}" placeholder="مثال: أحمد خالد" />`)}
-              ${ctl("العمر", `<input name="age" type="number" min="1" max="18" required value="${esc(p.age || "")}" placeholder="7" />`)}
-              ${ctl("الجنس", `<select name="gender"><option ${p.gender === "ذكر" ? "selected" : ""}>ذكر</option><option ${p.gender === "أنثى" ? "selected" : ""}>أنثى</option></select>`)}
-              ${ctl("الطبيب المعالج", `<select name="doctorId">${docOpts}</select>`)}
-              ${ctl("اسم ولي الأمر", `<input name="guardian" value="${esc(p.guardian || "")}" placeholder="اسم ولي الأمر" />`)}
-              ${ctl("رقم التواصل", `<input name="phone" value="${esc(p.phone || "")}" placeholder="05xxxxxxxx" />`)}
+              ${ctl(t("fFullName"), `<input name="name" required value="${esc(p.name || "")}" placeholder="${t("phName")}" />`)}
+              ${ctl(t("cAge"), `<input name="age" type="number" min="1" max="18" required value="${esc(p.age || "")}" placeholder="7" />`)}
+              ${ctl(t("lblGender"), `<select name="gender"><option value="זכר" ${p.gender === "זכר" ? "selected" : ""}>${t("gMale")}</option><option value="נקבה" ${p.gender === "נקבה" ? "selected" : ""}>${t("gFemale")}</option></select>`)}
+              ${ctl(t("cDoctor"), `<select name="doctorId">${docOpts}</select>`)}
+              ${ctl(t("fBirth"), `<input name="birthDate" type="date" value="${esc(p.birthDate || "")}" />`)}
+              ${ctl(t("fGuardian"), `<input name="guardian" value="${esc(p.guardian || "")}" placeholder="${t("fGuardian")}" />`)}
+              ${ctl(t("lblPhone"), `<input name="phone" value="${esc(p.phone || "")}" placeholder="05xxxxxxxx" />`)}
             </div>
-            ${ctl("التشخيص", `<input name="diagnosis" required value="${esc(p.diagnosis || "")}" placeholder="مثال: تأخر في النطق" />`)}
+            ${ctl(t("cDiagnosis"), `<input name="diagnosis" required value="${esc(p.diagnosis || "")}" placeholder="${t("phDiagnosis")}" />`)}
             <div style="height:8px"></div>
-            <div class="subhead"><h3 style="font-size:15px">بيانات دخول ولي الأمر</h3></div>
+            <div class="subhead"><h3 style="font-size:15px">${t("secParentLogin")}</h3></div>
             <div class="grid-2">
-              ${ctl("اسم المستخدم", `${I.user}<input name="parentUsername" required value="${esc(p.parentUsername || "")}" placeholder="username" />`)}
-              ${ctl("كلمة المرور", `${I.lock}<input name="parentPassword" required value="${esc(p.parentPassword || "")}" placeholder="••••" />`)}
+              ${ctl(t("username"), `${I.user}<input name="parentUsername" required value="${esc(p.parentUsername || "")}" placeholder="username" />`)}
+              ${ctl(t("password"), `${I.lock}<input name="parentPassword" required value="${esc(p.parentPassword || "")}" placeholder="••••" />`)}
             </div>
           </div>
-          <div class="modal-foot">
-            <button type="submit" class="btn btn-primary">${editing ? "حفظ التعديلات" : "إضافة المتعالج"}</button>
-            <button type="button" class="btn btn-ghost" data-modal-close>إلغاء</button>
-          </div>
-        </form>
-      </div>`;
+          <div class="modal-foot"><button type="submit" class="btn btn-primary">${editing ? t("btnSaveChanges") : t("btnAddPatient2")}</button><button type="button" class="btn btn-ghost" data-modal-close>${t("cancel")}</button></div>
+        </form></div>`;
     const close = openModal(html);
     $("#patient-form").addEventListener("submit", (e) => {
-      e.preventDefault(); const f = e.target;
-      const uname = f.parentUsername.value.trim();
-      if (DB.patients.find((x) => x.parentUsername === uname && x.id !== p.id)) { toast("اسم مستخدم ولي الأمر مستخدم مسبقاً", "err"); return; }
-      const data = { name: f.name.value.trim(), age: +f.age.value, gender: f.gender.value, doctorId: f.doctorId.value,
-        guardian: f.guardian.value.trim(), phone: f.phone.value.trim(), diagnosis: f.diagnosis.value.trim(),
-        parentUsername: uname, parentPassword: f.parentPassword.value.trim() };
-      if (editing) {
-        Object.assign(getPatient(p.id), data); logEvent("عدّل بيانات المتعالج", { patientName: data.name, patientId: p.id, kind: "patient" });
-        toast("تم حفظ التعديلات");
-      } else {
-        const np = mkPatient(Object.assign({ progress: 0, plan: "", notes: [], files: [], sessions: [], lastSession: today() }, data));
-        DB.patients.unshift(np); state.patientId = np.id; logEvent("أضاف متعالجاً جديداً", { patientName: np.name, patientId: np.id, kind: "patient" });
-        toast("تمت إضافة المتعالج بنجاح");
-      }
+      e.preventDefault(); const f = e.target; const uname = f.parentUsername.value.trim();
+      if (DB.patients.find((x) => x.parentUsername === uname && x.id !== p.id)) { toast(t("errParentUserExists"), "err"); return; }
+      const data = { name: f.name.value.trim(), age: +f.age.value, gender: f.gender.value, birthDate: f.birthDate.value, doctorId: f.doctorId.value, guardian: f.guardian.value.trim(), phone: f.phone.value.trim(), diagnosis: f.diagnosis.value.trim(), parentUsername: uname, parentPassword: f.parentPassword.value.trim() };
+      if (editing) { Object.assign(getPatient(p.id), data); logEvent(t("aEditPatient"), { patientName: data.name, patientId: p.id, kind: "patient" }); toast(t("tSaved")); }
+      else { const np = mkPatient(Object.assign({ progress: 0, plan: "", notes: [], files: [], sessions: [], recordings: [], chat: [], lastSession: today() }, data)); DB.patients.unshift(np); state.patientId = np.id; logEvent(t("aAddPatient"), { patientName: np.name, patientId: np.id, kind: "patient" }); toast(t("tPatientAdded")); }
       saveDB(); close(); render();
     });
   }
 
   function openNoteModal(pid) {
-    const html = `
-      <div class="modal"><div class="modal-head"><h3>ملاحظة جلسة جديدة</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
-        <form id="note-form"><div class="modal-body">
-          ${ctl("تاريخ الجلسة", `<input name="date" type="date" value="${today()}" required />`)}
-          <div class="field"><label>الملاحظة</label><div class="control"><textarea name="text" required placeholder="اكتب ملاحظات الجلسة وتقدّم المتعالج..."></textarea></div></div>
-        </div><div class="modal-foot"><button type="submit" class="btn btn-primary">حفظ الملاحظة</button><button type="button" class="btn btn-ghost" data-modal-close>إلغاء</button></div></form>
-      </div>`;
+    const html = `<div class="modal"><div class="modal-head"><h3>${t("mNote")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+        <form id="note-form"><div class="modal-body">${ctl(t("fSessionDate"), `<input name="date" type="date" value="${today()}" required />`)}
+          <div class="field"><label>${t("fNote")}</label><div class="control"><textarea name="text" required placeholder="${t("phNote")}"></textarea></div></div></div>
+          <div class="modal-foot"><button type="submit" class="btn btn-primary">${t("btnSaveNote")}</button><button type="button" class="btn btn-ghost" data-modal-close>${t("cancel")}</button></div></form></div>`;
     const close = openModal(html);
-    $("#note-form").addEventListener("submit", (e) => {
-      e.preventDefault(); const p = getPatient(pid);
-      p.notes.push({ id: uid(), date: e.target.date.value, text: e.target.text.value.trim() });
-      if (e.target.date.value > (p.lastSession || "")) p.lastSession = e.target.date.value;
-      logEvent("أضاف ملاحظة جلسة", { patientName: p.name, patientId: p.id, kind: "note" });
-      saveDB(); close(); render(); toast("تمت إضافة الملاحظة");
-    });
+    $("#note-form").addEventListener("submit", (e) => { e.preventDefault(); const p = getPatient(pid); p.notes.push({ id: uid(), date: e.target.date.value, text: e.target.text.value.trim() }); if (e.target.date.value > (p.lastSession || "")) p.lastSession = e.target.date.value; logEvent(t("aAddNote"), { patientName: p.name, patientId: p.id, kind: "note" }); saveDB(); close(); render(); toast(t("tNoteAdded")); });
   }
 
   function openProgressModal(pid) {
     const p = getPatient(pid);
-    const html = `
-      <div class="modal"><div class="modal-head"><h3>تحديث نسبة التقدم</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
-        <form id="prog-form"><div class="modal-body"><div class="field"><label>النسبة المئوية للتقدم</label>
+    const html = `<div class="modal"><div class="modal-head"><h3>${t("mProgress")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+        <form id="prog-form"><div class="modal-body"><div class="field"><label>${t("fProgressPct")}</label>
           <div class="range-row"><input name="progress" type="range" min="0" max="100" value="${p.progress}" /><span class="rv" id="rv">${p.progress}%</span></div></div></div>
-          <div class="modal-foot"><button type="submit" class="btn btn-primary">حفظ</button><button type="button" class="btn btn-ghost" data-modal-close>إلغاء</button></div></form>
-      </div>`;
+          <div class="modal-foot"><button type="submit" class="btn btn-primary">${t("save")}</button><button type="button" class="btn btn-ghost" data-modal-close>${t("cancel")}</button></div></form></div>`;
     const close = openModal(html);
-    const range = $("[name=progress]"); $("#rv");
+    const range = $("[name=progress]");
     range.addEventListener("input", () => $("#rv").textContent = range.value + "%");
-    $("#prog-form").addEventListener("submit", (e) => {
-      e.preventDefault(); const p2 = getPatient(pid); p2.progress = +range.value;
-      logEvent("حدّث نسبة التقدم إلى " + p2.progress + "%", { patientName: p2.name, patientId: p2.id, kind: "progress" });
-      saveDB(); close(); render(); toast("تم تحديث التقدم");
-    });
+    $("#prog-form").addEventListener("submit", (e) => { e.preventDefault(); const p2 = getPatient(pid); p2.progress = +range.value; logEvent(ti("aProgress", p2.progress), { patientName: p2.name, patientId: p2.id, kind: "progress" }); saveDB(); close(); render(); toast(t("tProgressUpdated")); });
   }
 
   function openPlanModal(pid) {
     const p = getPatient(pid);
-    const html = `
-      <div class="modal"><div class="modal-head"><h3>خطة العلاج القادمة</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
-        <form id="plan-form"><div class="modal-body"><div class="field"><label>اكتب الخطة العلاجية للمرحلة القادمة</label>
-          <div class="control"><textarea name="plan" style="min-height:130px" placeholder="أهداف الجلسات القادمة والتمارين المنزلية...">${esc(p.plan || "")}</textarea></div></div></div>
-          <div class="modal-foot"><button type="submit" class="btn btn-primary">حفظ الخطة</button><button type="button" class="btn btn-ghost" data-modal-close>إلغاء</button></div></form>
-      </div>`;
+    const html = `<div class="modal"><div class="modal-head"><h3>${t("mPlan")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+        <form id="plan-form"><div class="modal-body"><div class="field"><label>${t("fPlanLabel")}</label>
+          <div class="control"><textarea name="plan" style="min-height:130px" placeholder="${t("phPlan")}">${esc(p.plan || "")}</textarea></div></div></div>
+          <div class="modal-foot"><button type="submit" class="btn btn-primary">${t("btnSavePlan")}</button><button type="button" class="btn btn-ghost" data-modal-close>${t("cancel")}</button></div></form></div>`;
     const close = openModal(html);
-    $("#plan-form").addEventListener("submit", (e) => {
-      e.preventDefault(); const p2 = getPatient(pid); p2.plan = e.target.plan.value.trim();
-      logEvent("حدّث خطة العلاج القادمة", { patientName: p2.name, patientId: p2.id, kind: "plan" });
-      saveDB(); close(); render(); toast("تم حفظ الخطة");
-    });
+    $("#plan-form").addEventListener("submit", (e) => { e.preventDefault(); const p2 = getPatient(pid); p2.plan = e.target.plan.value.trim(); logEvent(t("aPlan"), { patientName: p2.name, patientId: p2.id, kind: "plan" }); saveDB(); close(); render(); toast(t("tPlanSaved")); });
   }
 
   function openSessionModal(pid, sid) {
@@ -926,112 +1266,146 @@
     if (pid && sid) session = (getPatient(pid).sessions || []).find((s) => s.id === sid);
     session = session || {};
     const needPatient = !pid;
-    const patientOpts = DB.patients.map((p) => `<option value="${p.id}" ${pid === p.id ? "selected" : ""}>${esc(p.name)}</option>`).join("");
-    const html = `
-      <div class="modal"><div class="modal-head"><h3>${sid ? "تعديل الجلسة" : "جدولة جلسة قادمة"}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+    const patientOpts = visiblePatients().map((p) => `<option value="${p.id}" ${pid === p.id ? "selected" : ""}>${esc(p.name)}</option>`).join("");
+    const html = `<div class="modal"><div class="modal-head"><h3>${sid ? t("mEditSession") : t("mAddSession")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
         <form id="session-form"><div class="modal-body">
-          ${needPatient ? ctl("المتعالج", `<select name="patientId" required>${patientOpts}</select>`) : ""}
-          <div class="grid-2">
-            ${ctl("التاريخ", `<input name="date" type="date" required value="${esc(session.date || today())}" />`)}
-            ${ctl("الوقت", `<input name="time" type="time" value="${esc(session.time || "10:00")}" />`)}
-          </div>
-          ${ctl("عنوان / هدف الجلسة", `<input name="title" placeholder="مثال: تمارين حرف الراء" value="${esc(session.title || "")}" />`)}
-        </div><div class="modal-foot"><button type="submit" class="btn btn-primary">حفظ</button><button type="button" class="btn btn-ghost" data-modal-close>إلغاء</button></div></form>
-      </div>`;
+          ${needPatient ? ctl(t("fPatient"), `<select name="patientId" required>${patientOpts}</select>`) : ""}
+          <div class="grid-2">${ctl(t("fDate"), `<input name="date" type="date" required value="${esc(session.date || today())}" />`)}${ctl(t("fTime"), `<input name="time" type="time" value="${esc(session.time || "10:00")}" />`)}</div>
+          ${ctl(t("fSessionTitle"), `<input name="title" placeholder="${t("phSessionTitle")}" value="${esc(session.title || "")}" />`)}
+        </div><div class="modal-foot"><button type="submit" class="btn btn-primary">${t("save")}</button><button type="button" class="btn btn-ghost" data-modal-close>${t("cancel")}</button></div></form></div>`;
     const close = openModal(html);
     $("#session-form").addEventListener("submit", (e) => {
-      e.preventDefault(); const f = e.target;
-      const targetId = pid || f.patientId.value; const p = getPatient(targetId); if (!p) return;
+      e.preventDefault(); const f = e.target; const targetId = pid || f.patientId.value; const p = getPatient(targetId); if (!p) return;
       const data = { date: f.date.value, time: f.time.value, title: f.title.value.trim() };
-      if (sid) { Object.assign(session, data); logEvent("عدّل جلسة قادمة", { patientName: p.name, patientId: p.id, kind: "session" }); }
-      else { p.sessions.push(Object.assign({ id: uid() }, data)); logEvent("جدول جلسة قادمة", { patientName: p.name, patientId: p.id, kind: "session" }); }
-      saveDB(); close(); render(); toast("تم حفظ الجلسة");
+      if (sid) { Object.assign(session, data); logEvent(t("aEditSession"), { patientName: p.name, patientId: p.id, kind: "session" }); }
+      else { p.sessions.push(Object.assign({ id: uid() }, data)); logEvent(t("aSchedule"), { patientName: p.name, patientId: p.id, kind: "session" }); }
+      saveDB(); close(); render(); toast(t("tSessionSaved"));
     });
   }
 
+  function openRecordingModal(pid) {
+    if (!can("manageRecordings")) return;
+    const needPatient = !pid;
+    const patientOpts = visiblePatients().map((p) => `<option value="${p.id}" ${pid === p.id ? "selected" : ""}>${esc(p.name)}</option>`).join("");
+    const html = `<div class="modal"><div class="modal-head"><h3>${t("mAddRec")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+        <form id="rec-form"><div class="modal-body">
+          ${needPatient ? ctl(t("fPatient"), `<select name="patientId" required>${patientOpts}</select>`) : ""}
+          <div class="grid-2">${ctl(t("fTitle"), `<input name="title" placeholder="${t("phRecTitle")}" />`)}${ctl(t("fDate"), `<input name="date" type="date" value="${today()}" required />`)}</div>
+          ${ctl(t("fVideoLink"), `${I.video}<input name="url" type="url" required placeholder="https://..." />`)}
+          <div class="login-hint">${I.bulb} ${t("recHint")}</div>
+        </div><div class="modal-foot"><button type="submit" class="btn btn-primary">${t("save")}</button><button type="button" class="btn btn-ghost" data-modal-close>${t("cancel")}</button></div></form></div>`;
+    const close = openModal(html);
+    $("#rec-form").addEventListener("submit", (e) => { e.preventDefault(); const f = e.target; const targetId = pid || f.patientId.value; const p = getPatient(targetId); if (!p) return; p.recordings.push({ id: uid(), title: f.title.value.trim(), date: f.date.value, url: f.url.value.trim() }); logEvent(t("aAddRec"), { patientName: p.name, patientId: p.id, kind: "recording" }); saveDB(); close(); render(); toast(t("tRecAdded")); });
+  }
+
   function openUploadModal(pid) {
-    const html = `
-      <div class="modal"><div class="modal-head"><h3>رفع ملف أو تقرير</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
-        <div class="modal-body">
-          <label class="dropzone" id="dz">${I.upload}<div><b>اختر ملفاً للرفع</b></div><div style="font-size:13px;margin-top:4px">PDF أو صورة أو مستند — حتى 5 ميجابايت</div><input type="file" id="file-input" hidden /></label>
-          <div id="dz-name" style="margin-top:12px;font-weight:700;color:var(--primary)"></div>
-        </div>
-        <div class="modal-foot"><button class="btn btn-primary" id="do-upload" disabled>رفع الملف</button><button class="btn btn-ghost" data-modal-close>إلغاء</button></div>
-      </div>`;
+    const html = `<div class="modal"><div class="modal-head"><h3>${t("mUpload")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+        <div class="modal-body"><label class="dropzone" id="dz">${I.upload}<div><b>${t("dzTitle")}</b></div><div style="font-size:13px;margin-top:4px">${t("dzSub")}</div><input type="file" id="file-input" hidden /></label>
+          <div id="dz-name" style="margin-top:12px;font-weight:700;color:var(--primary)"></div></div>
+        <div class="modal-foot"><button class="btn btn-primary" id="do-upload" disabled>${t("btnUploadFile")}</button><button class="btn btn-ghost" data-modal-close>${t("cancel")}</button></div></div>`;
     const close = openModal(html);
     const input = $("#file-input"); const nameEl = $("#dz-name"); const btn = $("#do-upload"); let chosen = null;
     input.addEventListener("change", () => { chosen = input.files[0] || null; if (chosen) { nameEl.textContent = chosen.name + " (" + fmtSize(chosen.size) + ")"; btn.disabled = false; } });
     btn.addEventListener("click", () => {
       if (!chosen) return; const p = getPatient(pid);
       const meta = { id: uid(), name: chosen.name, size: chosen.size, date: today() };
-      const finish = () => { p.files.push(meta); logEvent("رفع ملفاً", { patientName: p.name, patientId: p.id, kind: "file" }); saveDB(); close(); render(); toast("تم رفع الملف"); };
+      const finish = () => { p.files.push(meta); logEvent(t("aUpload"), { patientName: p.name, patientId: p.id, kind: "file" }); saveDB(); close(); render(); toast(t("tFileUploaded")); };
       if (chosen.size <= 5 * 1024 * 1024) { const r = new FileReader(); r.onload = () => { meta.data = r.result; finish(); }; r.onerror = finish; r.readAsDataURL(chosen); }
-      else { toast("الملف كبير، تم حفظ الاسم فقط", "err"); finish(); }
+      else { toast(t("fileTooBig"), "err"); finish(); }
     });
   }
 
-  function openDoctorModal() {
-    const html = `
-      <div class="modal"><div class="modal-head"><h3>إضافة طبيب جديد</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
-        <form id="doctor-form"><div class="modal-body">
-          <div class="grid-2">
-            ${ctl("الاسم", `<input name="name" required placeholder="مثال: د. منى أحمد" />`)}
-            ${ctl("التخصص / اللقب", `<input name="title" placeholder="أخصائي تخاطب" />`)}
-            ${ctl("اسم المستخدم", `${I.user}<input name="username" required placeholder="username" />`)}
-            ${ctl("كلمة المرور", `${I.lock}<input name="password" required placeholder="••••" />`)}
-          </div>
-        </div><div class="modal-foot"><button type="submit" class="btn btn-primary">إنشاء الحساب</button><button type="button" class="btn btn-ghost" data-modal-close>إلغاء</button></div></form>
-      </div>`;
+  function openDoctorModal(id) {
+    const me = currentDoctor(); if (!me || me.role !== "main") return;
+    const editing = !!id; const d = editing ? getDoctor(id) : {};
+    const perms = d.permissions || fullPerms();
+    const isMain = d.role === "main";
+    const permBlock = isMain ? `<div class="login-hint">${I.shield} ${t("mainAllPerms")}</div>` : `
+      <div class="subhead" style="margin-top:6px"><h3 style="font-size:15px">${t("secPerms")}</h3></div>
+      <div class="perm-grid">${ALL_PERMS.map((k) => `<label class="perm-row"><input type="checkbox" name="perm_${k}" ${(!editing || perms[k]) ? "checked" : ""}/><span>${t(PERM_KEY[k])}</span></label>`).join("")}</div>`;
+    const html = `<div class="modal"><div class="modal-head"><h3>${editing ? t("mEditDoctor") : t("mAddDoctor")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+        <form id="doctor-form"><div class="modal-body"><div class="grid-2">
+            ${ctl(t("fDocName"), `<input name="name" required value="${esc(d.name || "")}" placeholder="${t("phDocName")}" />`)}
+            ${ctl(t("fTitleRole"), `<input name="title" value="${esc(d.title || "")}" placeholder="${t("phTitleRole")}" />`)}
+            ${ctl(t("username"), `${I.user}<input name="username" required value="${esc(d.username || "")}" placeholder="username" />`)}
+            ${ctl(t("password"), `${I.lock}<input name="password" required value="${esc(d.password || "")}" placeholder="••••" />`)}
+          </div>${permBlock}</div>
+          <div class="modal-foot"><button type="submit" class="btn btn-primary">${editing ? t("btnSaveChanges") : t("btnCreateAcc")}</button><button type="button" class="btn btn-ghost" data-modal-close>${t("cancel")}</button></div></form></div>`;
     const close = openModal(html);
     $("#doctor-form").addEventListener("submit", (e) => {
       e.preventDefault(); const f = e.target; const uname = f.username.value.trim();
-      if (DB.doctors.find((d) => d.username === uname) || DB.patients.find((p) => p.parentUsername === uname)) { toast("اسم المستخدم مستخدم مسبقاً", "err"); return; }
-      const nd = { id: uid(), username: uname, password: f.password.value.trim(), name: f.name.value.trim(), title: f.title.value.trim() || "أخصائي تخاطب", role: "doctor" };
-      DB.doctors.push(nd); logEvent("أنشأ حساب طبيب: " + nd.name, { kind: "doctor" });
-      saveDB(); close(); renderTherapistContent(); toast("تم إنشاء حساب الطبيب");
+      if (DB.doctors.find((x) => x.username === uname && x.id !== id) || DB.patients.find((p) => p.parentUsername === uname)) { toast(t("errUserExists"), "err"); return; }
+      const base = { name: f.name.value.trim(), title: f.title.value.trim() || t("phTitleRole"), username: uname, password: f.password.value.trim() };
+      if (editing) { Object.assign(d, base); if (!isMain) { d.permissions = {}; ALL_PERMS.forEach((k) => d.permissions[k] = !!f["perm_" + k].checked); } logEvent(ti("aEditDoc", d.name), { kind: "perms" }); toast(t("tDoctorUpdated")); }
+      else { const perms2 = {}; ALL_PERMS.forEach((k) => perms2[k] = !!f["perm_" + k].checked); const nd = Object.assign({ id: uid(), role: "doctor", permissions: perms2 }, base); DB.doctors.push(nd); logEvent(ti("aCreateDoc", nd.name), { kind: "doctor" }); toast(t("tDoctorCreated")); }
+      saveDB(); close(); renderTherapistContent();
     });
   }
 
   function removeDoctor(id) {
     const d = getDoctor(id); if (!d || d.role === "main") return;
     const count = DB.patients.filter((p) => p.doctorId === id).length;
-    confirmDialog({ danger: true, title: "حذف الطبيب", confirm: "نعم، احذف",
-      message: count ? `هذا الطبيب لديه ${count} متعالج وسيتم نقلهم للطبيب الرئيسي.` : `سيتم حذف حساب "${d.name}".` }, () => {
+    confirmDialog({ danger: true, title: t("delDoctorTitle"), confirm: t("confirmYes"), message: count ? ti("delDoctorMsgCount", count) : ti("delDoctorMsg", d.name) }, () => {
       const main = DB.doctors.find((x) => x.role === "main");
       DB.patients.forEach((p) => { if (p.doctorId === id) p.doctorId = main ? main.id : p.doctorId; });
       DB.doctors = DB.doctors.filter((x) => x.id !== id);
-      logEvent("حذف حساب طبيب: " + d.name, { kind: "doctor" });
-      saveDB(); renderTherapistContent(); toast("تم حذف الطبيب");
+      logEvent(ti("aDelDoc", d.name), { kind: "doctor" });
+      saveDB(); renderTherapistContent(); toast(t("tDoctorDeleted"));
     });
   }
 
-  /* ---------------- Inbox (doctor reads parent messages) ---------------- */
+  /* ============================================================
+     CHAT (two-way)
+     ============================================================ */
   function openInboxModal() {
-    const doc = currentDoctor();
-    const msgs = inboxFor(doc).slice().sort((a, b) => (b.ts || "").localeCompare(a.ts || ""));
-    const html = `
-      <div class="modal"><div class="modal-head"><h3>الرسائل الواردة <span class="count">${msgs.length}</span></h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
-        <div class="modal-body">
-          ${msgs.length === 0
-            ? `<div class="empty">${I.message}<p>لا توجد رسائل من أولياء الأمور.</p></div>`
-            : `<div class="msg-list">${msgs.map((m) => `
-                <div class="msg-item ${m.read ? "" : "unread"} ${m.patientId ? "clickable" : ""}" ${m.patientId ? `data-go-msg="${m.patientId}"` : ""}>
-                  <div class="msg-top"><b>${esc(m.fromName || "ولي الأمر")}</b><span class="msg-time">${fmtDateTime(m.ts)}</span></div>
-                  <div class="msg-topic">${I.chat} ${esc(m.topic)} <span class="msg-to">إلى ${esc(m.doctorName)}</span></div>
-                  <p>${esc(m.text)}</p>
-                </div>`).join("")}</div>`}
-        </div>
-        <div class="modal-foot"><button class="btn btn-ghost" data-modal-close>إغلاق</button></div>
-      </div>`;
-    const close = openModal(html);
-    // mark read
-    let changed = false;
-    inboxFor(doc).forEach((m) => { if (!m.read) { m.read = true; changed = true; } });
-    if (changed) saveDB();
-    $$("[data-go-msg]").forEach((el) => el.addEventListener("click", () => { close(); state.patientId = el.dataset.goMsg; state.route = "profile"; render(); }));
-    // update topbar badge after closing handled by next render; refresh bell now:
-    const bell = $(".bell .count"); if (bell) bell.remove();
-    const bellBtn = $(".bell"); if (bellBtn && !$(".bell .dot")) bellBtn.insertAdjacentHTML("beforeend", '<span class="dot"></span>');
+    const list = visiblePatients().filter((p) => p.chat.length)
+      .map((p) => ({ p, last: p.chat[p.chat.length - 1], unread: p.chat.filter((m) => m.from === "parent" && !m.read).length }))
+      .sort((a, b) => (b.last.ts || "").localeCompare(a.last.ts || ""));
+    const html = `<div class="modal"><div class="modal-head"><h3>${t("inboxTitle")} <span class="count">${list.length}</span></h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+        <div class="modal-body">${list.length === 0 ? `<div class="empty">${I.message}<p>${t("inboxEmpty")}</p></div>`
+            : `<div class="inbox-list">${list.map((it) => `<button class="inbox-item" data-open-chat="${it.p.id}">
+                  <div class="ava md ${avaClass(it.p.id)}">${esc(initials(it.p.name))}</div>
+                  <div class="inbox-main"><div class="it-top"><b>${esc(it.p.guardian || t("lblParent"))}</b><span class="it-time">${fmtDateTime(it.last.ts)}</span></div>
+                    <div class="it-prev">${esc(it.p.name)} · ${esc(it.last.text)}</div></div>
+                  ${it.unread ? `<span class="ibadge">${it.unread}</span>` : ""}</button>`).join("")}</div>`}</div>
+        <div class="modal-foot"><button class="btn btn-ghost" data-modal-close>${t("close")}</button></div></div>`;
+    const close = openModal(html, render);
+    $$("[data-open-chat]").forEach((b) => b.addEventListener("click", () => { close(); openChatModal(b.dataset.openChat); }));
+  }
+
+  function openChatModal(pid) {
+    const role = getSession().role;
+    const me = role === "therapist" ? "doctor" : "parent";
+    const other = me === "doctor" ? "parent" : "doctor";
+    const p = getPatient(pid);
+    const headName = me === "doctor" ? (p.guardian || t("lblParent")) : doctorName(p.doctorId);
+    const headSub = me === "doctor" ? ti("chSubDoctor", p.name) : t("chSubParent");
+    const html = `<div class="modal chat-modal">
+        <div class="modal-head chat-head"><div class="ch-id"><div class="ava md ${avaClass(pid)}">${esc(initials(headName))}</div>
+            <div><div class="chn">${esc(headName)}</div><div class="chs">${esc(headSub)}</div></div></div>
+          <button class="icon-btn" data-modal-close>${I.x}</button></div>
+        <div class="chat-body" id="chat-body"></div>
+        <form id="chat-form" class="chat-form"><input id="chat-input" autocomplete="off" placeholder="${t("chPlaceholder")}" /><button class="btn btn-primary" type="submit">${I.send}</button></form></div>`;
+    const close = openModal(html, render);
+    function paint() {
+      const pp = getPatient(pid);
+      let changed = false; pp.chat.forEach((m) => { if (m.from === other && !m.read) { m.read = true; changed = true; } }); if (changed) saveDB();
+      const msgs = pp.chat.slice().sort((a, b) => (a.ts || "").localeCompare(b.ts || ""));
+      const body = $("#chat-body");
+      body.innerHTML = msgs.length ? msgs.map((m) => `<div class="chat-bubble ${m.from === me ? "mine" : "theirs"}"><p>${esc(m.text)}</p><span class="cb-time">${esc(m.senderName)} · ${fmtTime(m.ts)}</span></div>`).join("")
+        : `<div class="chat-empty">${I.chat}<p>${t("chEmpty")}</p></div>`;
+      body.scrollTop = body.scrollHeight;
+    }
+    paint();
+    $("#chat-form").addEventListener("submit", (e) => {
+      e.preventDefault(); const inp = $("#chat-input"); const text = inp.value.trim(); if (!text) return;
+      const pp = getPatient(pid);
+      const senderName = me === "doctor" ? currentDoctor().name : (pp.guardian || t("lblParent"));
+      pp.chat.push({ id: uid(), ts: new Date().toISOString(), from: me, senderName, text, read: false });
+      if (me === "parent") logEvent(t("aChatMsg"), { actorName: senderName + " (" + ti("parentOf", pp.name) + ")", patientName: pp.name, patientId: pp.id, kind: "message" });
+      saveDB(); inp.value = ""; paint();
+    });
+    setTimeout(() => { const ci = $("#chat-input"); if (ci) ci.focus(); }, 50);
   }
 
   /* ============================================================
@@ -1039,82 +1413,56 @@
      ============================================================ */
   function ParentShell(session) {
     const p = getPatient(session.patientId);
-    if (!p) return `<div class="shell"><div class="main"><div class="content"><div class="card"><div class="empty">${I.user}<p>تعذّر العثور على ملف الطفل.</p></div></div></div></div></div>`;
-    const myMsgs = DB.messages.filter((m) => m.patientId === p.id).slice().sort((a, b) => (b.ts || "").localeCompare(a.ts || ""));
+    if (!p) return `<div class="shell"><div class="main"><div class="content"><div class="card"><div class="empty">${I.user}<p>—</p></div></div></div></div></div>`;
+    const unread = parentUnread(p);
     return `
-    <div class="shell ${state.navOpen ? "nav-open" : ""}">
-      <div class="scrim" data-close-nav></div>
-      <aside class="sidebar">
-        ${Brand("بوابة أولياء الأمور")}
-        <div class="sidebar-user">
-          <div class="ava md ${avaClass(p.id)}">${esc(initials(p.name))}</div>
-          <div class="meta"><strong>${esc(p.guardian || "ولي الأمر")}</strong><span>ولي أمر ${esc(p.name)}</span></div>
-        </div>
+    <div class="shell ${state.navOpen ? "nav-open" : ""}"><div class="scrim" data-close-nav></div>
+      <aside class="sidebar">${Brand("subParent")}
+        <div class="sidebar-user"><div class="ava md ${avaClass(p.id)}">${esc(initials(p.name))}</div>
+          <div class="meta"><strong>${esc(p.guardian || t("lblParent"))}</strong><span>${ti("chSubDoctor", p.name)}</span></div></div>
         <nav class="nav">
-          <button class="nav-item active">${I.home}<span>ملف طفلي</span></button>
-          <button class="nav-item" data-send-msg>${I.message}<span>مراسلة الأخصائي</span></button>
+          <button class="nav-item active">${I.home}<span>${t("nMyChild")}</span></button>
+          <button class="nav-item" data-chat="${p.id}">${I.chat}<span>${t("nChat")}</span>${unread ? `<span class="nav-badge">${unread}</span>` : ""}</button>
           <div class="nav-spacer"></div>
-          <button class="nav-item logout" data-logout>${I.logout}<span>تسجيل الخروج</span></button>
+          <button class="nav-item logout" data-logout>${I.logout}<span>${t("nLogout")}</span></button>
         </nav>
       </aside>
       <div class="main">
-        <div class="topbar">
-          <div style="display:flex;align-items:center;gap:12px">
+        <div class="topbar"><div style="display:flex;align-items:center;gap:12px">
             <button class="icon-btn hamburger" data-toggle-nav>${I.menu}</button>
-            <div class="page-title">ملف طفلي</div>
-          </div>
-          <div class="right">
-            <button class="btn btn-soft btn-sm" data-send-msg>${I.send} مراسلة الأخصائي</button>
-            <span class="ro-badge">${I.eye} عرض فقط</span>
-          </div>
-        </div>
-        <div class="content" id="content">
-          <div class="welcome">
-            <div class="ava lg ${avaClass(p.id)}">${esc(initials(p.name))}</div>
-            <div class="info"><h2>أهلاً بك في ملف ${esc(p.name)}</h2><p>هنا تتابع تقدّم طفلك، ملاحظات الأخصائي، الجلسات القادمة، الملفات، والخطة العلاجية.</p></div>
-            <button class="btn btn-primary" data-send-msg>${I.send} أرسل رسالة</button>
-          </div>
-          ${myMsgs.length ? `
-            <div class="card" style="margin-bottom:20px">
-              <div class="subhead"><h3>رسائلي للأخصائي</h3><span class="count">${myMsgs.length}</span></div>
-              <div class="msg-list">${myMsgs.map((m) => `
-                <div class="msg-item">
-                  <div class="msg-top"><b>${esc(m.topic)}</b><span class="msg-time">${fmtDateTime(m.ts)}</span></div>
-                  <div class="msg-topic"><span class="msg-to">إلى ${esc(m.doctorName)}</span> ${m.read ? `<span class="seen">${I.check} تمت القراءة</span>` : `<span class="sent-tag">أُرسلت</span>`}</div>
-                  <p>${esc(m.text)}</p>
-                </div>`).join("")}</div>
-            </div>` : ""}
-          ${ProfileView(p, true)}
-        </div>
+            <div class="page-title">${t("nMyChild")}</div></div>
+          <div class="right">${LangSwitcher()}
+            <button class="btn btn-soft btn-sm" data-chat="${p.id}">${I.chat} ${t("actChat")}${unread ? ` <span class="ibadge">${unread}</span>` : ""}</button>
+            <span class="ro-badge">${I.eye} ${t("badgeReadonly")}</span></div></div>
+        <div class="content" id="content">${ProfileView(p, true)}</div>
       </div>
     </div>`;
   }
 
   function afterParent() {
     bindShell();
-    $$("[data-send-msg]").forEach((b) => b.addEventListener("click", openSendMessageModal));
+    $$("[data-chat]").forEach((b) => b.addEventListener("click", () => openChatModal(b.dataset.chat)));
+    $$("[data-edit-parent]").forEach((b) => b.addEventListener("click", () => openParentEditModal(b.dataset.editParent)));
+    bindDownloads();
   }
 
-  function openSendMessageModal() {
-    const session = getSession(); const p = getPatient(session.patientId);
-    const preferred = p.doctorId;
-    const docOpts = DB.doctors.map((d) => `<option value="${d.id}" ${preferred === d.id ? "selected" : ""}>${esc(d.name)}${d.id === preferred ? " (الطبيب المعالج)" : ""}</option>`).join("");
-    const html = `
-      <div class="modal"><div class="modal-head"><h3>مراسلة الأخصائي</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
-        <form id="msg-form"><div class="modal-body">
-          ${ctl("الطبيب", `${I.stetho}<select name="doctorId" required>${docOpts}</select>`)}
-          ${ctl("الموضوع", `<input name="topic" required placeholder="مثال: استفسار عن الواجب المنزلي" />`)}
-          <div class="field"><label>رسالتك / مشكلتك أو سؤالك</label><div class="control"><textarea name="text" required style="min-height:110px" placeholder="اكتب رسالتك للأخصائي..."></textarea></div></div>
-        </div><div class="modal-foot"><button type="submit" class="btn btn-primary">${I.send} إرسال</button><button type="button" class="btn btn-ghost" data-modal-close>إلغاء</button></div></form>
-      </div>`;
+  function openParentEditModal(pid) {
+    const p = getPatient(pid); if (!p) return;
+    const html = `<div class="modal"><div class="modal-head"><h3>${t("mEditBasic")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+        <form id="pe-form"><div class="modal-body">
+          ${ctl(t("fChildName"), `<input name="name" required value="${esc(p.name || "")}" placeholder="${t("fFullName")}" />`)}
+          <div class="grid-2">${ctl(t("fPhoneNum"), `<input name="phone" value="${esc(p.phone || "")}" placeholder="05xxxxxxxx" />`)}${ctl(t("cAge"), `<input name="age" type="number" min="1" max="18" value="${esc(p.age || "")}" />`)}</div>
+          ${ctl(t("fBirth"), `<input name="birthDate" type="date" value="${esc(p.birthDate || "")}" />`)}
+          <div class="login-hint">${I.bulb} ${t("parentEditHint")}</div>
+        </div><div class="modal-foot"><button type="submit" class="btn btn-primary">${t("save")}</button><button type="button" class="btn btn-ghost" data-modal-close>${t("cancel")}</button></div></form></div>`;
     const close = openModal(html);
-    $("#msg-form").addEventListener("submit", (e) => {
-      e.preventDefault(); const f = e.target; const did = f.doctorId.value;
-      DB.messages.unshift({ id: uid(), ts: new Date().toISOString(), patientId: p.id, patientName: p.name,
-        fromName: p.guardian || "ولي الأمر", doctorId: did, doctorName: doctorName(did),
-        topic: f.topic.value.trim(), text: f.text.value.trim(), read: false });
-      logEvent("أرسل رسالة: " + f.topic.value.trim(), { actorName: (p.guardian || "ولي الأمر") + " (ولي أمر " + p.name + ")", patientName: p.name, patientId: p.id, kind: "message" });
-      saveDB(); close(); render(); toast("تم إرسال رسالتك للأخصائي");
+    $("#pe-form").addEventListener("submit", (e) => {
+      e.preventDefault(); const f = e.target;
+      p.name = f.name.value.trim(); p.phone = f.phone.value.trim();
+      if (f.birthDate.value) p.birthDate = f.birthDate.value;
+      if (f.age.value) p.age = +f.age.value;
+      logEvent(t("aParentEdit"), { actorName: (p.guardian || t("lblParent")) + " (" + ti("parentOf", p.name) + ")", patientName: p.name, patientId: p.id, kind: "patient" });
+      saveDB(); close(); render(); toast(t("tDetailsUpdated"));
     });
   }
 
@@ -1122,6 +1470,7 @@
      Boot
      ============================================================ */
   loadDB();
+  try { const sl = parseInt(localStorage.getItem(LANG_KEY)); if (!isNaN(sl) && sl >= 0 && sl < LANGS.length) L = sl; } catch (e) {}
   const sess = getSession();
   if (sess && sess.role === "therapist") state.route = "dashboard";
   render();
