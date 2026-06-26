@@ -387,6 +387,23 @@
     tDoctorRestored: ["המטפל שוחזר", "تمت استعادة الطبيب", "Therapist restored"],
     aRestoreDoc: ["שחזר חשבון מטפל: {0}", "استعاد حساب طبيب: {0}", "restored therapist account: {0}"],
     idleLogout: ["נותקת אוטומטית עקב חוסר פעילות (5 דקות). אנא התחבר/י שוב.", "تم تسجيل خروجك تلقائياً بسبب عدم النشاط (5 دقائق). يرجى تسجيل الدخول مجدداً.", "You were signed out due to inactivity (5 minutes). Please sign in again."],
+
+    sessionDetails: ["פרטי הפגישה", "تفاصيل الجلسة", "Session details"],
+    sessionSummary: ["סיכום הפגישה", "ملخص الجلسة", "Session summary"],
+    writeSummaryTitle: ["הפגישה הסתיימה — כתיבת סיכום", "انتهت الجلسة — كتابة الملخص", "Session ended — write a summary"],
+    writeSummaryHint: ["הפגישה הסתיימה. כתוב מה בוצע בפגישה והערות למעקב.", "انتهت الجلسة. اكتب ما تم في الجلسة وملاحظات للمتابعة.", "The session has ended. Note what was covered and any follow-up."],
+    phSummary: ["מה בוצע בפגישה, התקדמות, והמלצות להמשך...", "ما تم في الجلسة، التقدم، وتوصيات للمتابعة...", "What was covered, progress, and recommendations..."],
+    btnOk: ["אישור", "موافق", "OK"],
+    later: ["מאוחר יותר", "لاحقاً", "Later"],
+    statusUpcoming: ["מתוכננת", "مجدولة", "Scheduled"],
+    statusDone: ["הושלמה", "مكتملة", "Completed"],
+    statusPending: ["ממתינה לסיכום", "بانتظار الملخص", "Awaiting summary"],
+    needsSummary: ["נדרש סיכום", "يتطلب ملخصاً", "Needs summary"],
+    noSummary: ["לא נכתב סיכום לפגישה זו.", "لم يُكتب ملخص لهذه الجلسة.", "No summary written for this session yet."],
+    goToPatient: ["מעבר לתיק המטופל", "الانتقال لملف المتعالج", "Go to patient file"],
+    writeSummaryBtn: ["כתיבת סיכום", "كتابة ملخص", "Write summary"],
+    aSummary: ["כתב/ה סיכום פגישה", "كتب ملخص جلسة", "wrote a session summary"],
+    tSummarySaved: ["הסיכום נשמר", "تم حفظ الملخص", "Summary saved"],
   };
 
   const t = (k) => { const e = S[k]; return e ? e[L] : k; };
@@ -430,6 +447,7 @@
   function applyTheme() { document.documentElement.classList.toggle("dark", dark); }
   function toggleTheme() { dark = !dark; try { localStorage.setItem(THEME_KEY, dark ? "1" : "0"); } catch (e) {} applyTheme(); render(); }
   function ThemeBtn() { return `<button class="icon-btn" data-theme-toggle title="${dark ? t("darkOff") : t("darkOn")}">${dark ? I.sun : I.moon}</button>`; }
+  function ThemeNavItem() { return `<button class="nav-item" data-theme-toggle>${dark ? I.sun : I.moon}<span>${dark ? t("darkOff") : t("darkOn")}</span></button>`; }
 
   function goHome() {
     const s = getSession(); state.navOpen = false;
@@ -449,6 +467,10 @@
   function hashStr(s) { let h = 0; for (let i = 0; i < String(s).length; i++) h = (h << 5) - h + s.charCodeAt(i); return h; }
   const today = () => new Date().toISOString().slice(0, 10);
   const isUpcoming = (d) => d >= today();
+  /* session timing (date + time aware) */
+  const sessionDT = (s) => new Date((s.date || "1970-01-01") + "T" + (/^\d{1,2}:\d{2}/.test(s.time || "") ? s.time : "23:59"));
+  const sessionUpcoming = (s) => sessionDT(s).getTime() >= Date.now();
+  const sessionPending = (s) => !sessionUpcoming(s) && !s.summary; // ended but not summarized
   const genderText = (v) => v === "זכר" ? t("gMale") : v === "נקבה" ? t("gFemale") : (v || "—");
   /* avatar markup: photo if uploaded, else colored initials */
   function ava(entity, size) {
@@ -616,6 +638,7 @@
   function render() {
     applyLangAttrs();
     pruneChats();
+    document.body.classList.toggle("nav-open-lock", !!state.navOpen);
     const app = $("#app");
     const session = getSession();
     if (!session) { app.innerHTML = LoginView(); afterLogin(); }
@@ -727,6 +750,7 @@
       <nav class="nav">
         ${items.map(([k, ic, label]) => (k === "add" && !can("managePatients")) ? "" : `<button class="nav-item ${active(k) ? "active" : ""}" data-nav="${k}">${ic}<span>${t(label)}</span></button>`).join("")}
         <div class="nav-spacer"></div>
+        ${ThemeNavItem()}
         <button class="nav-item logout" data-logout>${I.logout}<span>${t("nLogout")}</span></button>
       </nav>
     </aside>`;
@@ -744,7 +768,6 @@
       </div>
       <div class="right">
         <span class="greet">${t("hello")} <b>${esc(doc.name)}</b></span>
-        ${ThemeBtn()}
         ${LangSwitcher()}
         ${can("chat") ? `<button class="icon-btn bell" data-inbox>${I.bell}${unread ? `<span class="count">${unread}</span>` : `<span class="dot"></span>`}</button>` : ""}
         ${ava(doc, "md")}
@@ -756,6 +779,7 @@
     bindShell();
     $$("[data-inbox]").forEach((b) => b.addEventListener("click", openInboxModal));
     renderTherapistContent();
+    maybePromptSessionSummary();
   }
 
   function renderTherapistContent() {
@@ -793,7 +817,7 @@
   function DashboardView() {
     const ps = visiblePatients();
     const total = ps.length;
-    const upcoming = ps.reduce((n, p) => n + p.sessions.filter((s) => isUpcoming(s.date)).length, 0);
+    const upcoming = ps.reduce((n, p) => n + p.sessions.filter((s) => sessionUpcoming(s)).length, 0);
     const recordings = ps.reduce((n, p) => n + p.recordings.length, 0);
     const reports = ps.reduce((n, p) => n + p.files.length, 0);
     const stats = [
@@ -925,13 +949,13 @@
     if (f.doctor) list = list.filter((s) => s.doctorId === f.doctor);
     if (f.patient) list = list.filter((s) => s.patientId === f.patient);
     if (f.search.trim()) list = list.filter((s) => (s.title || "").includes(f.search.trim()) || s.patientName.includes(f.search.trim()));
-    const upcoming = list.filter((s) => isUpcoming(s.date));
-    const past = list.filter((s) => !isUpcoming(s.date)).reverse();
+    const upcoming = list.filter((s) => sessionUpcoming(s));
+    const past = list.filter((s) => !sessionUpcoming(s)).reverse();
 
     const item = (s) => `
-      <div class="session-item" data-go-patient="${s.patientId}">
-        <div class="date-chip"><b>${new Date(s.date).getDate()}</b><span>${monthShort(s.date)}</span></div>
-        <div class="session-main"><div class="st">${esc(s.title || t("sesDefault"))}</div>
+      <div class="session-item clickable" data-session="${s.patientId}|${s.id}">
+        <div class="date-chip ${sessionUpcoming(s) ? "" : "past"}"><b>${new Date(s.date).getDate()}</b><span>${monthShort(s.date)}</span></div>
+        <div class="session-main"><div class="st">${esc(s.title || t("sesDefault"))}${sessionPending(s) ? ` <span class="need-sum">${t("needsSummary")}</span>` : ""}</div>
           <div class="ss">${I.user} ${esc(s.patientName)} · ${I.clock} ${esc(s.time || "—")} · ${esc(doctorName(s.doctorId))}</div></div>
         ${editable ? `<div class="row-actions">
           <button class="icon-btn" data-edit-session="${s.patientId}|${s.id}" title="${t("ttEdit")}">${I.edit}</button>
@@ -1205,8 +1229,8 @@
     const canChat = readonly ? true : (can("chat") && !!currentDoctor() && p.doctorId === currentDoctor().id);
     const notes = p.notes.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""));
     const sessions = p.sessions.slice().sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")));
-    const upcoming = sessions.filter((s) => isUpcoming(s.date));
-    const past = sessions.filter((s) => !isUpcoming(s.date)).reverse();
+    const upcoming = sessions.filter((s) => sessionUpcoming(s));
+    const past = sessions.filter((s) => !sessionUpcoming(s)).reverse();
     const recordings = p.recordings.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""));
     const unreadFromParent = p.chat.filter((m) => m.from === "parent" && !m.read).length;
     const ringC = 2 * Math.PI * 54;
@@ -1245,8 +1269,8 @@
             <div class="subhead"><h3>${t("sesPast")}</h3><span class="count">${past.length}</span></div>
             ${past.length === 0 ? `<div class="empty">${I.clock}<p>${t("emptyPast")}</p></div>`
               : `<div class="session-list muted">${past.map((s) => `
-                  <div class="session-item"><div class="date-chip past"><b>${new Date(s.date).getDate()}</b><span>${monthShort(s.date)}</span></div>
-                    <div class="session-main"><div class="st">${esc(s.title || t("sesDefault"))}</div><div class="ss">${I.clock} ${esc(s.time || "—")} · ${fmtDate(s.date)}</div></div>
+                  <div class="session-item clickable" data-session="${p.id}|${s.id}"><div class="date-chip past"><b>${new Date(s.date).getDate()}</b><span>${monthShort(s.date)}</span></div>
+                    <div class="session-main"><div class="st">${esc(s.title || t("sesDefault"))}${sessionPending(s) ? ` <span class="need-sum">${t("needsSummary")}</span>` : s.summary ? ` <span class="done-tag">${I.check}</span>` : ""}</div><div class="ss">${I.clock} ${esc(s.time || "—")} · ${fmtDate(s.date)}</div></div>
                   </div>`).join("")}</div>`}
           </div>`;
 
@@ -1276,7 +1300,7 @@
               ${canSessions ? `<button class="btn btn-soft btn-sm" data-add-session-for="${p.id}">${I.plus} ${t("btnScheduleShort")}</button>` : ""}</div>
             ${upcoming.length === 0 ? `<div class="empty">${I.calendar}<p>${t("emptyUpcomingP")}</p></div>`
               : `<div class="session-list">${upcoming.map((s) => `
-                  <div class="session-item"><div class="date-chip"><b>${new Date(s.date).getDate()}</b><span>${monthShort(s.date)}</span></div>
+                  <div class="session-item clickable" data-session="${p.id}|${s.id}"><div class="date-chip"><b>${new Date(s.date).getDate()}</b><span>${monthShort(s.date)}</span></div>
                     <div class="session-main"><div class="st">${esc(s.title || t("sesDefault"))}</div><div class="ss">${I.clock} ${esc(s.time || "—")} · ${fmtDate(s.date)}</div></div>
                     ${canSessions ? `<div class="row-actions">
                       <button class="icon-btn" data-edit-session="${p.id}|${s.id}" title="${t("ttEdit")}">${I.edit}</button>
@@ -1370,6 +1394,7 @@ ${pastCard}
     $$("[data-upload]").forEach((b) => b.addEventListener("click", () => openUploadModal(b.dataset.upload)));
     $$("[data-del-file]").forEach((b) => b.addEventListener("click", () => { const [pid, fid] = b.dataset.delFile.split("|"); const p = getPatient(pid); p.files = p.files.filter((f) => f.id !== fid); logEvent(t("aDelFile"), { patientName: p.name, patientId: p.id, kind: "file" }); saveDB(); renderTherapistContent(); toast(t("tFileDeleted")); }));
 
+    $$("[data-session]").forEach((el) => el.addEventListener("click", (e) => { if (e.target.closest("button")) return; const [pid, sid] = el.dataset.session.split("|"); openSessionDetailsModal(pid, sid); }));
     $$("[data-add-session]").forEach((b) => b.addEventListener("click", () => openSessionModal(null, null)));
     $$("[data-add-session-for]").forEach((b) => b.addEventListener("click", () => openSessionModal(b.dataset.addSessionFor, null)));
     $$("[data-edit-session]").forEach((b) => b.addEventListener("click", () => { const [pid, sid] = b.dataset.editSession.split("|"); openSessionModal(pid, sid); }));
@@ -1553,6 +1578,68 @@ ${pastCard}
     });
   }
 
+  /* ---- session details + end-of-session summary ---- */
+  const sdHead = (p, s) => `<div class="sd-head">
+      <div class="date-chip ${sessionUpcoming(s) ? "" : "past"}"><b>${new Date(s.date).getDate()}</b><span>${monthShort(s.date)}</span></div>
+      <div><div class="sd-title">${esc(s.title || t("sesDefault"))}</div>
+        <div class="sd-sub">${I.user} ${esc(p.name)} · ${I.clock} ${esc(s.time || "—")} · ${fmtDate(s.date)}</div></div>
+    </div>`;
+
+  function openSessionDetailsModal(pid, sid) {
+    const p = getPatient(pid); if (!p) return;
+    const s = p.sessions.find((x) => x.id === sid); if (!s) return;
+    const upcoming = sessionUpcoming(s);
+    const status = upcoming ? "statusUpcoming" : (s.summary ? "statusDone" : "statusPending");
+    const statusCls = upcoming ? "up" : (s.summary ? "done" : "pend");
+    const role = getSession().role;
+    const canWrite = role === "therapist" && can("manageSessions") && !upcoming;
+    const html = `<div class="modal"><div class="modal-head"><h3>${t("sessionDetails")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+      <div class="modal-body">
+        ${sdHead(p, s)}
+        <div style="margin-top:12px"><span class="status-tag ${statusCls}">${t(status)}</span></div>
+        <div class="subhead" style="margin-top:18px"><h3 style="font-size:15px">${t("sessionSummary")}</h3></div>
+        ${s.summary ? `<div class="plan-box">${esc(s.summary)}</div>` : `<div class="plan-box empty-plan">${t("noSummary")}</div>`}
+      </div>
+      <div class="modal-foot">
+        ${canWrite ? `<button class="btn btn-primary" data-write-summary="${pid}|${sid}">${I.edit} ${t("writeSummaryBtn")}</button>` : ""}
+        ${role === "therapist" ? `<button class="btn btn-soft" data-go-patient-modal="${pid}">${t("goToPatient")}</button>` : ""}
+        <button class="btn btn-ghost" data-modal-close>${t("close")}</button>
+      </div></div>`;
+    const close = openModal(html);
+    $$("[data-write-summary]").forEach((b) => b.addEventListener("click", () => { close(); const [pp, ss] = b.dataset.writeSummary.split("|"); openSessionSummaryModal(pp, ss); }));
+    $$("[data-go-patient-modal]").forEach((b) => b.addEventListener("click", () => { close(); state.patientId = b.dataset.goPatientModal; state.route = "profile"; render(); }));
+  }
+
+  function openSessionSummaryModal(pid, sid) {
+    const p = getPatient(pid); if (!p) return;
+    const s = p.sessions.find((x) => x.id === sid); if (!s) return;
+    const html = `<div class="modal"><div class="modal-head"><h3>${t("writeSummaryTitle")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+      <form id="sum-form"><div class="modal-body">
+        ${sdHead(p, s)}
+        <div class="login-hint" style="margin:14px 0">${I.bulb} ${t("writeSummaryHint")}</div>
+        <div class="field"><label>${t("sessionSummary")}</label><div class="control"><textarea name="summary" required style="min-height:120px" placeholder="${t("phSummary")}">${esc(s.summary || "")}</textarea></div></div>
+      </div><div class="modal-foot">
+        <button type="submit" class="btn btn-primary">${t("btnOk")}</button>
+        <button type="button" class="btn btn-ghost" data-later>${t("later")}</button>
+      </div></form></div>`;
+    const close = openModal(html);
+    $("[data-later]").addEventListener("click", () => { dismissedPrompts.add(sid); close(); });
+    $("#sum-form").addEventListener("submit", (e) => {
+      e.preventDefault(); s.summary = e.target.summary.value.trim();
+      logEvent(t("aSummary"), { patientName: p.name, patientId: p.id, kind: "session" });
+      saveDB(); close(); render(); toast(t("tSummarySaved"));
+    });
+  }
+
+  const dismissedPrompts = new Set();
+  function maybePromptSessionSummary() {
+    if (!can("manageSessions")) return;
+    if ($("#modal-root").children.length) return;
+    let target = null;
+    myChatPatients().forEach((p) => p.sessions.forEach((s) => { if (!target && sessionPending(s) && !dismissedPrompts.has(s.id)) target = { pid: p.id, sid: s.id }; }));
+    if (target) openSessionSummaryModal(target.pid, target.sid);
+  }
+
   function openRecordingModal(pid) {
     if (!can("manageRecordings")) return;
     const needPatient = !pid;
@@ -1707,6 +1794,7 @@ ${pastCard}
           <button class="nav-item active">${I.home}<span>${t("nMyChild")}</span></button>
           <button class="nav-item" data-chat="${p.id}">${I.chat}<span>${t("nChat")}</span>${unread ? `<span class="nav-badge">${unread}</span>` : ""}</button>
           <div class="nav-spacer"></div>
+          ${ThemeNavItem()}
           <button class="nav-item logout" data-logout>${I.logout}<span>${t("nLogout")}</span></button>
         </nav>
       </aside>
@@ -1714,8 +1802,7 @@ ${pastCard}
         <div class="topbar"><div style="display:flex;align-items:center;gap:12px">
             <button class="icon-btn hamburger" data-toggle-nav>${I.menu}</button>
             <div class="page-title">${t("nMyChild")}</div></div>
-          <div class="right">${ThemeBtn()}${LangSwitcher()}
-            <button class="btn btn-soft btn-sm" data-chat="${p.id}">${I.chat} ${t("actChat")}${unread ? ` <span class="ibadge">${unread}</span>` : ""}</button>
+          <div class="right">${LangSwitcher()}
             <span class="ro-badge">${I.eye} ${t("badgeReadonly")}</span></div></div>
         <div class="content" id="content">${ProfileView(p, true)}</div>
       </div>
@@ -1727,6 +1814,7 @@ ${pastCard}
     $$("[data-chat]").forEach((b) => b.addEventListener("click", () => openChatModal(b.dataset.chat)));
     $$("[data-edit-parent]").forEach((b) => b.addEventListener("click", () => openParentEditModal(b.dataset.editParent)));
     $$("[data-doc-profile]").forEach((b) => b.addEventListener("click", () => openDoctorProfileModal(b.dataset.docProfile)));
+    $$("[data-session]").forEach((el) => el.addEventListener("click", (e) => { if (e.target.closest("button")) return; const [pid, sid] = el.dataset.session.split("|"); openSessionDetailsModal(pid, sid); }));
     bindDownloads();
     bindAvatarUploads();
   }

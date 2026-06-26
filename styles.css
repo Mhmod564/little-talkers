@@ -559,7 +559,7 @@ textarea { resize: vertical; min-height: 90px; line-height: 1.7; }
 @media (max-width: 1024px) {
   .sidebar {
     position: fixed; top: 0; bottom: 0; height: 100vh; width: 280px; max-width: 86vw;
-    inset-inline-start: 0; inset-inline-end: auto;
+    inset-inline-start: 0; inset-inline-end: auto; overflow-y: auto;
     transition: transform .3s var(--ease);
     z-index: 80; box-shadow: var(--shadow-lg);
   }
@@ -568,6 +568,8 @@ textarea { resize: vertical; min-height: 90px; line-height: 1.7; }
   [dir="ltr"] .sidebar { transform: translateX(-100%); }
   .shell.nav-open .sidebar { transform: translateX(0); }
   .shell.nav-open .scrim { display: block; position: fixed; inset: 0; background: rgba(45,48,72,.35); z-index: 70; }
+  /* lock the page behind the open drawer so only the drawer scrolls */
+  body.nav-open-lock { overflow: hidden; }
   .hamburger { display: inline-grid; }
   .sidebar .nav-close { display: inline-grid; }
   .topbar { padding: 16px 18px; }
@@ -576,18 +578,41 @@ textarea { resize: vertical; min-height: 90px; line-height: 1.7; }
   .content { padding: 4px 18px 32px; }
 }
 
+/* center content column on large screens */
+.content { width: 100%; max-width: 1240px; margin-inline: auto; }
+
 @media (max-width: 768px) {
-  .info-grid { grid-template-columns: 1fr; }
   .grid-2 { grid-template-columns: 1fr; }
   .ava.lg { width: 64px; height: 64px; font-size: 24px; }
   .ava.xl { width: 76px; height: 76px; font-size: 28px; }
   .sidebar-user .ava.md, .topbar .right .ava.md { width: 38px; height: 38px; font-size: 15px; }
   .profile-hero { gap: 16px; }
   .profile-hero h2 { font-size: 21px; }
+
+  /* filters stay side by side: search on its own row, dropdowns in a row */
+  .filterbar { gap: 8px; }
+  .filterbar .search { flex-basis: 100%; min-width: 0; }
+  .filterbar .fsel { flex: 1 1 0; min-width: 0; }
+  .filterbar .fsel select { width: 100%; }
+
+  /* search + add button side by side in card headers */
+  .card-head { flex-wrap: nowrap; align-items: center; }
+  .card-head .tools { flex: 1; flex-wrap: nowrap; min-width: 0; }
+  .card-head .tools .search { flex: 1; min-width: 0; }
+  .card-head .btn-primary { flex: none; white-space: nowrap; }
+}
+
+/* dashboard stat cards: 2 per row on small screens */
+@media (max-width: 620px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-card { padding: 16px; gap: 11px; flex-direction: column; align-items: flex-start; }
+  .stat-ico { width: 46px; height: 46px; }
+  .stat-meta .value { font-size: 24px; }
+  .info-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
-  .stat-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
   .login-panel { padding: 24px 18px; }
 }
 
@@ -877,6 +902,20 @@ textarea { resize: vertical; min-height: 90px; line-height: 1.7; }
 
 /* ---------- mobile nav close (X) ---------- */
 .nav-close { display: none; position: absolute; top: 16px; inset-inline-end: 16px; z-index: 3; }
+
+/* ---------- session details / summary ---------- */
+.session-item.clickable { cursor: pointer; }
+.need-sum { font-size: 11px; font-weight: 700; background: var(--amber-soft); color: #c98a4e; padding: 2px 9px; border-radius: 20px; vertical-align: middle; margin-inline-start: 4px; }
+.done-tag { display: inline-grid; place-items: center; width: 17px; height: 17px; background: var(--green-soft); color: #4dae7d; border-radius: 50%; vertical-align: middle; margin-inline-start: 4px; }
+.done-tag svg { width: 11px; height: 11px; }
+.sd-head { display: flex; align-items: center; gap: 14px; }
+.sd-title { font-weight: 800; font-size: 17px; }
+.sd-sub { font-size: 13px; color: var(--text-soft); display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+.sd-sub svg { width: 14px; height: 14px; vertical-align: -2px; }
+.status-tag { display: inline-block; font-size: 12.5px; font-weight: 700; padding: 4px 13px; border-radius: 20px; }
+.status-tag.up { background: var(--blue-soft); color: #5b8fcf; }
+.status-tag.done { background: var(--green-soft); color: #4a9c72; }
+.status-tag.pend { background: var(--amber-soft); color: #c98a4e; }
 
 /* keep all meta-row icons small (e.g. "Meet your therapist" modal) */
 .meta-row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; color: var(--text-soft); font-size: 14px; }
