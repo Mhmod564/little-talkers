@@ -23,6 +23,7 @@
     search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
     folder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
     chevDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
+    chevUp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>',
     arrowBack: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
     edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>',
     trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
@@ -136,6 +137,7 @@
     emptyNoPatients: ["אין מטופלים עדיין. התחל בהוספת מטופל חדש.", "لا يوجد متعالجون بعد. ابدأ بإضافة متعالج جديد.", "No patients yet. Add your first patient."],
     emptyNoMatch: ["אין תוצאות תואמות לסינון.", "لا توجد نتائج مطابقة للفلاتر.", "No results match your filters."],
     showMore: ["הצג עוד", "عرض المزيد", "Show more"],
+    showLess: ["הצג פחות", "عرض أقل", "Show less"],
     ttOpen: ["פתיחת תיק", "فتح الملف", "Open file"],
     ttEdit: ["עריכה", "تعديل", "Edit"],
     ttDelete: ["מחיקה", "حذف", "Delete"],
@@ -163,6 +165,8 @@
 
     emptyNoEvents: ["אין אירועים תואמים.", "لا توجد أحداث مطابقة.", "No matching events."],
     phSearchLog: ["חיפוש ביומן...", "ابحث في السجل...", "Search log..."],
+    fromDate: ["מתאריך", "من تاريخ", "From date"],
+    toDate: ["עד תאריך", "إلى تاريخ", "To date"],
     kNote: ["הערות", "ملاحظات", "Notes"],
     kProgress: ["התקדמות", "التقدم", "Progress"],
     kPlan: ["תוכניות", "الخطط", "Plans"],
@@ -418,10 +422,11 @@
   function setLang(i) { L = i; try { localStorage.setItem(LANG_KEY, String(i)); } catch (e) {} render(); }
 
   function LangSwitcher() {
+    const order = [1, 0, 2]; // display order: Arabic, Hebrew, English
     return `<div class="lang-switch">
       <button class="lang-btn" data-lang-toggle>${I.globe}<span>${LANGS[L].short}</span></button>
       <div class="lang-menu" data-lang-menu hidden>
-        ${LANGS.map((lg, i) => `<button data-setlang="${i}" class="${i === L ? "on" : ""}">${lg.native}</button>`).join("")}
+        ${order.map((i) => `<button data-setlang="${i}" class="${i === L ? "on" : ""}">${LANGS[i].native}</button>`).join("")}
       </div>
     </div>`;
   }
@@ -611,7 +616,7 @@
   /* ---------------- App state ---------------- */
   const freshState = () => ({ route: "login", loginRole: "therapist", patientId: null, showAll: false, navOpen: false,
     filters: { search: "", doctor: "", diagnosis: "", sort: "recent" },
-    logF: { doctor: "", kind: "", search: "" }, sesF: { doctor: "", patient: "", search: "" },
+    logF: { doctor: "", kind: "", search: "", from: "", to: "" }, sesF: { doctor: "", patient: "", search: "" },
     repF: { patient: "", doctor: "", search: "" }, recF: { patient: "", doctor: "", search: "" }, docSearch: "" });
   let state = freshState();
   let idleTimer = null, idleLoggedOut = false;
@@ -756,15 +761,29 @@
     </aside>`;
   }
 
+  function routeCount() {
+    switch (state.route) {
+      case "patients": return visiblePatients().length;
+      case "sessions": return allSessions().filter(sessionUpcoming).length;
+      case "recordings": return visiblePatients().reduce((n, p) => n + p.recordings.length, 0);
+      case "reports": return visiblePatients().reduce((n, p) => n + p.files.length, 0);
+      case "log": return DB.logs.length;
+      case "doctors": return activeDoctors().length;
+      case "removed": return removedPatients().length;
+      default: return null;
+    }
+  }
+
   function Topbar() {
     const doc = currentDoctor();
     const unread = can("chat") ? doctorUnread() : 0;
     const titles = { dashboard: "nDash", patients: "nPatients", sessions: "nSessions", recordings: "nRecordings", reports: "nReports", log: "nLog", doctors: "nDoctors", removed: "nRemoved", myprofile: "nMyProfile", profile: "titleProfile" };
+    const cnt = routeCount();
     return `
     <div class="topbar">
       <div style="display:flex;align-items:center;gap:12px">
         <button class="icon-btn hamburger" data-toggle-nav>${I.menu}</button>
-        <div class="page-title">${t(titles[state.route] || "nDash")}</div>
+        <div class="page-title">${t(titles[state.route] || "nDash")}${cnt != null ? ` <span class="title-count">${cnt}</span>` : ""}</div>
       </div>
       <div class="right">
         <span class="greet">${t("hello")} <b>${esc(doc.name)}</b></span>
@@ -866,14 +885,14 @@
 
     const rows = shown.map((p) => `
       <tr data-row="${p.id}">
-        <td><div class="cell-name">${ava(p, "md")}
+        <td class="td-name"><div class="cell-name">${ava(p, "md")}
           <div><div class="nm">${esc(p.name)}</div><div class="sb">${esc(p.guardian || "")}</div></div></div></td>
-        <td>${esc(p.age)} ${t("years")}</td>
-        <td><span class="tag">${esc(p.diagnosis)}</span></td>
-        <td><span class="doc-pill">${I.stetho}${esc((getDoctor(p.doctorId) || {}).name || "—")}</span></td>
-        <td>${fmtDate(p.lastSession)}</td>
-        <td><div class="progress"><span class="pct">${p.progress}%</span><div class="bar"><i style="width:${p.progress}%"></i></div></div></td>
-        <td><div class="row-actions">
+        <td data-label="${t("cAge")}">${esc(p.age)} ${t("years")}</td>
+        <td data-label="${t("cDiagnosis")}"><span class="tag">${esc(p.diagnosis)}</span></td>
+        <td data-label="${t("cDoctor")}"><span class="doc-pill">${I.stetho}${esc((getDoctor(p.doctorId) || {}).name || "—")}</span></td>
+        <td data-label="${t("cLast")}">${fmtDate(p.lastSession)}</td>
+        <td data-label="${t("cProgress")}"><div class="progress"><span class="pct">${p.progress}%</span><div class="bar"><i style="width:${p.progress}%"></i></div></div></td>
+        <td class="td-actions"><div class="row-actions">
           <button class="icon-btn" data-open="${p.id}" title="${t("ttOpen")}">${I.folder}</button>
           ${editable ? `<button class="icon-btn" data-edit="${p.id}" title="${t("ttEdit")}">${I.edit}</button>
           <button class="icon-btn danger" data-remove="${p.id}" title="${t("ttDelete")}">${I.trash}</button>` : ""}
@@ -884,51 +903,55 @@
       ? `<tr><td colspan="7"><div class="empty">${I.users}<p>${(f.search || f.doctor || f.diagnosis) ? t("emptyNoMatch") : t("emptyNoPatients")}</p></div></td></tr>`
       : rows;
 
-    const filterBar = compact ? "" : `
-      <div class="filterbar">
-        <div class="search">${I.search}<input id="patient-search" placeholder="${t("phSearchNameDiag")}" value="${esc(f.search)}" /></div>
-        <label class="fsel">${I.stetho}<select data-filter="doctor"><option value="">${t("allDoctors")}</option>
-          ${DB.doctors.map((d) => `<option value="${d.id}" ${f.doctor === d.id ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select></label>
-        <label class="fsel">${I.filter}<select data-filter="diagnosis"><option value="">${t("allDiag")}</option>
-          ${diagnoses.map((d) => `<option ${f.diagnosis === d ? "selected" : ""}>${esc(d)}</option>`).join("")}</select></label>
-        <label class="fsel">${I.sort}<select data-filter="sort">
-          <option value="recent" ${f.sort === "recent" ? "selected" : ""}>${t("sortRecent")}</option>
-          <option value="progress-high" ${f.sort === "progress-high" ? "selected" : ""}>${t("sortHigh")}</option>
-          <option value="progress-low" ${f.sort === "progress-low" ? "selected" : ""}>${t("sortLow")}</option>
-          <option value="name" ${f.sort === "name" ? "selected" : ""}>${t("sortName")}</option></select></label>
-        ${(f.search || f.doctor || f.diagnosis || f.sort !== "recent") ? `<button class="btn btn-ghost btn-sm" data-clear-filters>${I.x} ${t("clear")}</button>` : ""}
-      </div>`;
+    const fActive = f.search || f.doctor || f.sort !== "recent";
+    const header = compact
+      ? `<div class="card-head dash-head"><h3>${t("nPatients")}</h3>
+          ${editable ? `<button class="btn btn-primary" data-add>${I.plus} ${t("nAdd")}</button>` : ""}
+          <div class="search dash-search">${I.search}<input id="patient-search" placeholder="${t("phSearchPatient")}" value="${esc(f.search)}" /></div>
+        </div>`
+      : `<div class="toolbar tb-patients">
+          ${editable ? `<button class="btn btn-primary tb-action" data-add>${I.plus} ${t("nAdd")}</button>` : ""}
+          <div class="search tb-search">${I.search}<input id="patient-search" placeholder="${t("phSearchNameDiag")}" value="${esc(f.search)}" /></div>
+          <div class="tb-filters">
+            <label class="fsel">${I.stetho}<select data-filter="doctor"><option value="">${t("allDoctors")}</option>
+              ${DB.doctors.map((d) => `<option value="${d.id}" ${f.doctor === d.id ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select></label>
+            <label class="fsel">${I.sort}<select data-filter="sort">
+              <option value="recent" ${f.sort === "recent" ? "selected" : ""}>${t("sortRecent")}</option>
+              <option value="progress-high" ${f.sort === "progress-high" ? "selected" : ""}>${t("sortHigh")}</option>
+              <option value="progress-low" ${f.sort === "progress-low" ? "selected" : ""}>${t("sortLow")}</option>
+              <option value="name" ${f.sort === "name" ? "selected" : ""}>${t("sortName")}</option></select></label>
+          </div>
+          ${fActive ? `<div class="tb-clear"><button class="btn btn-ghost btn-sm" data-clear-filters>${I.x} ${t("clear")}</button></div>` : ""}
+        </div>`;
 
     const inner = `
-      <div class="card-head">
-        <h3>${t("nPatients")} ${compact ? "" : `<span class="count">${list.length}</span>`}</h3>
-        <div class="tools">
-          ${compact ? `<div class="search">${I.search}<input id="patient-search" placeholder="${t("phSearchPatient")}" value="${esc(f.search)}" /></div>` : ""}
-          ${editable ? `<button class="btn btn-primary" data-add>${I.plus} ${t("nAdd")}</button>` : ""}
-        </div>
-      </div>
-      ${filterBar}
+      ${header}
       <div class="table-wrap"><table class="patients">
         <thead><tr><th>${t("cName")}</th><th>${t("cAge")}</th><th>${t("cDiagnosis")}</th><th>${t("cDoctor")}</th><th>${t("cLast")}</th><th>${t("cProgress")}</th><th>${t("cActions")}</th></tr></thead>
         <tbody>${body}</tbody>
       </table></div>
-      ${hasMore ? `<div class="show-more"><button data-showall>${t("showMore")} ${I.chevDown}</button></div>` : ""}`;
+      ${compact && hasMore ? `<div class="show-more"><button data-showall>${t("showMore")} ${I.chevDown}</button></div>`
+        : compact && state.showAll && list.length > 4 ? `<div class="show-more"><button data-showless>${t("showLess")} ${I.chevUp}</button></div>` : ""}`;
     return `<div class="card">${inner}</div>`;
   }
 
   /* ============================================================
      SECTION FILTER BAR (generic)
      ============================================================ */
-  function sectionFilterBar(prefix, fields, searchPlaceholder) {
+  function sectionFilterBar(prefix, fields, searchPlaceholder, action, extra) {
     const f = state[prefix + "F"];
-    const active = fields.some(([k]) => f[k]) || (f.search && f.search.trim());
-    return `<div class="filterbar">
-      <div class="search">${I.search}<input data-secsearch="${prefix}" placeholder="${esc(searchPlaceholder)}" value="${esc(f.search || "")}" /></div>
-      ${fields.map(([key, allLabel, opts]) => `<label class="fsel">${I.filter}<select data-secfilter="${prefix}|${key}">
-        <option value="">${esc(allLabel)}</option>
-        ${opts.map(([v, l]) => `<option value="${esc(v)}" ${f[key] === v ? "selected" : ""}>${esc(l)}</option>`).join("")}
-      </select></label>`).join("")}
-      ${active ? `<button class="btn btn-ghost btn-sm" data-secclear="${prefix}">${I.x} ${t("clear")}</button>` : ""}
+    const active = Object.keys(f).some((k) => { const v = f[k]; return v && (k === "search" ? v.trim() : true); });
+    return `<div class="toolbar tb-section">
+      ${action || ""}
+      <div class="search tb-search">${I.search}<input data-secsearch="${prefix}" placeholder="${esc(searchPlaceholder)}" value="${esc(f.search || "")}" /></div>
+      <div class="tb-filters">
+        ${fields.map(([key, allLabel, opts]) => `<label class="fsel">${I.filter}<select data-secfilter="${prefix}|${key}">
+          <option value="">${esc(allLabel)}</option>
+          ${opts.map(([v, l]) => `<option value="${esc(v)}" ${f[key] === v ? "selected" : ""}>${esc(l)}</option>`).join("")}
+        </select></label>`).join("")}
+      </div>
+      ${extra || ""}
+      ${active ? `<div class="tb-clear"><button class="btn btn-ghost btn-sm" data-secclear="${prefix}">${I.x} ${t("clear")}</button></div>` : ""}
     </div>`;
   }
 
@@ -964,9 +987,7 @@
 
     return `
       <div class="card">
-        <div class="card-head"><h3>${t("nSessions")} <span class="count">${upcoming.length}</span></h3>
-          <div class="tools">${editable ? `<button class="btn btn-primary" data-add-session>${I.plus} ${t("btnSchedule")}</button>` : ""}</div></div>
-        ${sectionFilterBar("ses", [["patient", t("allPatients"), visiblePatients().map((p) => [p.id, p.name])], ["doctor", t("allDoctors"), DB.doctors.map((d) => [d.id, d.name])]], t("phSearchSession"))}
+        ${sectionFilterBar("ses", [["patient", t("allPatients"), visiblePatients().map((p) => [p.id, p.name])], ["doctor", t("allDoctors"), DB.doctors.map((d) => [d.id, d.name])]], t("phSearchSession"), editable ? `<button class="btn btn-primary tb-action" data-add-session>${I.plus} ${t("btnSchedule")}</button>` : "")}
         ${upcoming.length === 0 ? `<div class="empty">${I.calendar}<p>${t("emptyNoUpcoming")}</p></div>` : `<div class="session-list">${upcoming.map(item).join("")}</div>`}
       </div>
       ${past.length ? `<div class="card" style="margin-top:20px"><div class="subhead"><h3>${t("sesPast")}</h3><span class="count">${past.length}</span></div>
@@ -987,9 +1008,7 @@
     const totalRecs = groups.reduce((n, g) => n + g.recs.length, 0);
     return `
       <div class="card">
-        <div class="card-head"><h3>${t("recTitle")} <span class="count">${totalRecs}</span></h3>
-          <div class="tools">${editable ? `<button class="btn btn-primary" data-add-recording>${I.plus} ${t("btnAddRec")}</button>` : ""}</div></div>
-        ${sectionFilterBar("rec", [["patient", t("allPatients"), visiblePatients().map((p) => [p.id, p.name])], ["doctor", t("allDoctors"), DB.doctors.map((d) => [d.id, d.name])]], t("phSearchRec"))}
+        ${sectionFilterBar("rec", [["patient", t("allPatients"), visiblePatients().map((p) => [p.id, p.name])], ["doctor", t("allDoctors"), DB.doctors.map((d) => [d.id, d.name])]], t("phSearchRec"), editable ? `<button class="btn btn-primary tb-action" data-add-recording>${I.plus} ${t("btnAddRec")}</button>` : "")}
         ${totalRecs === 0
           ? `<div class="empty">${I.video}<p>${q || f.patient || f.doctor ? t("emptyRecMatch") : t("emptyNoRec")}</p></div>`
           : groups.map((g) => `<div class="group">
@@ -1021,7 +1040,6 @@
     const total = groups.reduce((n, g) => n + g.files.length, 0);
     return `
       <div class="card">
-        <div class="card-head"><h3>${t("nReports")} <span class="count">${total}</span></h3></div>
         ${sectionFilterBar("rep", [["patient", t("allPatients"), visiblePatients().map((p) => [p.id, p.name])], ["doctor", t("allDoctors"), DB.doctors.map((d) => [d.id, d.name])]], t("phSearchFile"))}
         ${total === 0
           ? `<div class="empty">${I.file}<p>${q || f.patient || f.doctor ? t("emptyFileMatch") : t("emptyNoFiles")}</p></div>`
@@ -1045,12 +1063,17 @@
     if (f.doctor) logs = logs.filter((l) => l.doctorId === f.doctor);
     if (f.kind) logs = logs.filter((l) => l.kind === f.kind);
     if (f.search.trim()) logs = logs.filter((l) => (l.action || "").includes(f.search.trim()) || (l.patientName || "").includes(f.search.trim()) || (l.doctorName || "").includes(f.search.trim()));
+    if (f.from) logs = logs.filter((l) => (l.ts || "").slice(0, 10) >= f.from);
+    if (f.to) logs = logs.filter((l) => (l.ts || "").slice(0, 10) <= f.to);
     const kindIco = { note: I.edit, progress: I.activity, plan: I.bulb, file: I.file, patient: I.userPlus, remove: I.trash, session: I.calendar, doctor: I.stetho, perms: I.key, recording: I.video, message: I.message, info: I.history };
     const kindKeys = { note: "kNote", progress: "kProgress", plan: "kPlan", file: "kFile", patient: "kPatient", remove: "kRemove", session: "kSession", doctor: "kDoctor", perms: "kPerms", recording: "kRecording", message: "kMessage" };
     return `
       <div class="card">
-        <div class="card-head"><h3>${t("nLog")} <span class="count">${logs.length}</span></h3></div>
-        ${sectionFilterBar("log", [["doctor", t("allDoctors"), DB.doctors.map((d) => [d.id, d.name])], ["kind", t("allKinds"), Object.keys(kindKeys).map((k) => [k, t(kindKeys[k])])]], t("phSearchLog"))}
+        ${sectionFilterBar("log", [["doctor", t("allDoctors"), DB.doctors.map((d) => [d.id, d.name])], ["kind", t("allKinds"), Object.keys(kindKeys).map((k) => [k, t(kindKeys[k])])]], t("phSearchLog"), null,
+          `<div class="tb-daterange">
+            <div class="field dr-field"><label>${t("fromDate")}</label><div class="control"><input type="date" data-logfrom value="${esc(f.from || "")}" /></div></div>
+            <div class="field dr-field"><label>${t("toDate")}</label><div class="control"><input type="date" data-logto value="${esc(f.to || "")}" /></div></div>
+          </div>`)}
         ${logs.length === 0 ? `<div class="empty">${I.history}<p>${t("emptyNoEvents")}</p></div>`
           : `<div class="log-list">${logs.map((l) => `
               <div class="log-item ${l.patientId ? "clickable" : ""}" ${l.patientId ? `data-go-patient="${l.patientId}"` : ""}>
@@ -1074,9 +1097,10 @@
     if (q) { docs = docs.filter((d) => d.name.includes(q) || d.username.includes(q)); removed = removed.filter((d) => d.name.includes(q) || d.username.includes(q)); }
     return `
       <div class="card">
-        <div class="card-head"><h3>${t("nDoctors")} <span class="count">${docs.length}</span></h3>
-          <div class="tools"><div class="search">${I.search}<input data-docsearch placeholder="${t("phSearchDoctor")}" value="${esc(state.docSearch)}" /></div>
-            <button class="btn btn-primary" data-add-doctor>${I.plus} ${t("btnAddDoctor")}</button></div></div>
+        <div class="toolbar tb-patients">
+          <button class="btn btn-primary tb-action" data-add-doctor>${I.plus} ${t("btnAddDoctor")}</button>
+          <div class="search tb-search">${I.search}<input data-docsearch placeholder="${t("phSearchDoctor")}" value="${esc(state.docSearch)}" /></div>
+        </div>
         <div class="doctor-list">
           ${docs.map((d) => {
             const perms = d.role === "main" ? ALL_PERMS : ALL_PERMS.filter((k) => d.permissions && d.permissions[k]);
@@ -1116,7 +1140,6 @@
     const list = removedPatients().slice().sort((a, b) => (b.removedAt || "").localeCompare(a.removedAt || ""));
     return `
       <div class="card">
-        <div class="card-head"><h3>${t("nRemoved")} <span class="count">${list.length}</span></h3></div>
         ${list.length === 0 ? `<div class="empty">${I.trash}<p>${t("emptyRemoved")}</p></div>`
           : `<div class="doctor-list">${list.map((p) => `
             <div class="doctor-item">
@@ -1375,10 +1398,13 @@ ${pastCard}
     $$("[data-secsearch]").forEach((inp) => inp.addEventListener("input", () => { state[inp.dataset.secsearch + "F"].search = inp.value; renderTherapistContent(); const ni = $(`[data-secsearch="${inp.dataset.secsearch}"]`); if (ni) { ni.focus(); ni.setSelectionRange(ni.value.length, ni.value.length); } }));
     $$("[data-secfilter]").forEach((sel) => sel.addEventListener("change", () => { const [pre, key] = sel.dataset.secfilter.split("|"); state[pre + "F"][key] = sel.value; renderTherapistContent(); }));
     $$("[data-secclear]").forEach((b) => b.addEventListener("click", () => { const pre = b.dataset.secclear; Object.keys(state[pre + "F"]).forEach((k) => state[pre + "F"][k] = ""); renderTherapistContent(); }));
+    const lf = $("[data-logfrom]"); if (lf) lf.addEventListener("change", () => { state.logF.from = lf.value; renderTherapistContent(); });
+    const lt = $("[data-logto]"); if (lt) lt.addEventListener("change", () => { state.logF.to = lt.value; renderTherapistContent(); });
     const ds = $("[data-docsearch]"); if (ds) ds.addEventListener("input", () => { state.docSearch = ds.value; renderTherapistContent(); const n = $("[data-docsearch]"); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } });
 
     $$("[data-add]").forEach((b) => b.addEventListener("click", () => openPatientModal(null)));
     $$("[data-showall]").forEach((b) => b.addEventListener("click", () => { state.showAll = true; renderTherapistContent(); }));
+    $$("[data-showless]").forEach((b) => b.addEventListener("click", () => { state.showAll = false; renderTherapistContent(); }));
     $$("[data-open]").forEach((b) => b.addEventListener("click", () => { state.patientId = b.dataset.open; state.route = "profile"; render(); }));
     $$("[data-row]").forEach((tr) => tr.addEventListener("click", (e) => { if (e.target.closest("button")) return; state.patientId = tr.dataset.row; state.route = "profile"; render(); }));
     $$("[data-go-patient]").forEach((el) => el.addEventListener("click", (e) => { if (e.target.closest("button,a")) return; state.patientId = el.dataset.goPatient; state.route = "profile"; render(); }));
