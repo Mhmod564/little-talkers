@@ -52,6 +52,11 @@
     play: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>',
     key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>',
     globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+    camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+    phone2: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+    moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+    sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+    arrowUp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
   };
 
   /* ============================================================
@@ -336,6 +341,52 @@
     aChatMsg: ["שלח הודעה בצ׳אט", "أرسل رسالة في المحادثة", "sent a chat message"],
     parentOf: ["הורה של {0}", "ولي أمر {0}", "parent of {0}"],
     sysName: ["המערכת", "النظام", "System"],
+
+    changePhoto: ["שינוי תמונה", "تغيير الصورة", "Change photo"],
+    imgTooBig: ["התמונה גדולה מדי (עד 2MB)", "الصورة كبيرة جداً (حتى 2MB)", "Image too large (max 2MB)"],
+    photoUpdated: ["התמונה עודכנה", "تم تحديث الصورة", "Photo updated"],
+    nMyProfile: ["הפרופיל שלי", "ملفي الشخصي", "My Profile"],
+    nRemoved: ["מטופלים שהוסרו", "المتعالجون المحذوفون", "Removed Patients"],
+    badgeParent: ["אזור ההורה", "منطقة ولي الأمر", "Parent area"],
+    meetTherapist: ["הכרת המטפל", "تعرّف على المعالج", "Meet your therapist"],
+    docProfileTitle: ["פרופיל המטפל", "ملف المعالج", "Therapist Profile"],
+    bioLabel: ["קצת עליי / המסע המקצועי שלי", "نبذة عني / مسيرتي المهنية", "About me / my journey"],
+    phBio: ["ספר על ההכשרה, הניסיון והגישה הטיפולית שלך...", "اكتب عن تدريبك وخبرتك ونهجك العلاجي...", "Share your training, experience and approach..."],
+    noBio: ["טרם נוספו פרטים על המטפל.", "لم تتم إضافة تفاصيل عن المعالج بعد.", "No therapist details added yet."],
+    myProfileEdit: ["עריכת הפרופיל שלי", "تعديل ملفي", "Edit my profile"],
+    saveProfile: ["שמירת פרופיל", "حفظ الملف", "Save profile"],
+    tProfileSaved: ["הפרופיל נשמר", "تم حفظ الملف", "Profile saved"],
+    restore: ["שחזור", "استعادة", "Restore"],
+    deleteForever: ["מחיקה לצמיתות", "حذف نهائي", "Delete forever"],
+    emptyRemoved: ["אין מטופלים שהוסרו.", "لا يوجد متعالجون محذوفون.", "No removed patients."],
+    tRestored: ["המטופל שוחזר", "تمت استعادة المتعالج", "Patient restored"],
+    tArchived: ["המטופל הועבר לרשימת המוסרים", "تم نقل المتعالج للمحذوفين", "Patient moved to removed list"],
+    archiveTitle: ["הסרת מטופל", "إزالة المتعالج", "Remove patient"],
+    archiveMsg: ['המטופל "{0}" יועבר לרשימת המוסרים. ניתן לשחזר אותו בכל עת.', 'سيتم نقل المتعالج "{0}" إلى قائمة المحذوفين. يمكن استعادته في أي وقت.', '"{0}" will be moved to the removed list. You can restore it anytime.'],
+    delForeverTitle: ["מחיקה לצמיתות", "حذف نهائي", "Delete permanently"],
+    delForeverMsg: ['התיק של "{0}" יימחק לצמיתות. לא ניתן לשחזר.', 'سيتم حذف ملف "{0}" نهائياً. لا يمكن استعادته.', '"{0}"\'s file will be permanently deleted and cannot be restored.'],
+    removedOn: ["הוסר בתאריך", "أُزيل بتاريخ", "Removed on"],
+    chatLogLabel: ["צ׳אט", "محادثة", "Chat"],
+
+    permNotes: ["ניהול הערות", "إدارة الملاحظات", "Manage notes"],
+    permSessions: ["ניהול פגישות", "إدارة الجلسات", "Manage sessions"],
+    permFiles: ["ניהול קבצים", "إدارة الملفات", "Manage files"],
+    permReports: ["צפייה בדוחות", "عرض التقارير", "View reports"],
+    permLog: ["צפייה ביומן", "عرض السجل", "View log"],
+
+    aLogin: ["התחבר/ה למערכת", "سجّل الدخول", "logged in"],
+    aPhoto: ["עדכן/ה תמונת פרופיל", "حدّث صورة الملف", "updated profile photo"],
+    aWatchRec: ["צפה/תה בהקלטה", "شاهد التسجيل", "watched a recording"],
+
+    darkOn: ["מצב כהה", "الوضع الليلي", "Dark mode"],
+    darkOff: ["מצב בהיר", "الوضع النهاري", "Light mode"],
+    toTop: ["חזרה למעלה", "العودة للأعلى", "Back to top"],
+    goHome: ["לדף הבית", "للصفحة الرئيسية", "Home"],
+
+    removedDoctors: ["מטפלים שהוסרו", "الأطباء المحذوفون", "Removed therapists"],
+    tDoctorRestored: ["המטפל שוחזר", "تمت استعادة الطبيب", "Therapist restored"],
+    aRestoreDoc: ["שחזר חשבון מטפל: {0}", "استعاد حساب طبيب: {0}", "restored therapist account: {0}"],
+    idleLogout: ["נותקת אוטומטית עקב חוסר פעילות (5 דקות). אנא התחבר/י שוב.", "تم تسجيل خروجك تلقائياً بسبب عدم النشاط (5 دقائق). يرجى تسجيل الدخول مجدداً.", "You were signed out due to inactivity (5 minutes). Please sign in again."],
   };
 
   const t = (k) => { const e = S[k]; return e ? e[L] : k; };
@@ -369,6 +420,21 @@
       setTimeout(() => document.addEventListener("click", onDoc), 0);
     }));
     $$("[data-setlang]").forEach((b) => b.addEventListener("click", () => setLang(+b.dataset.setlang)));
+    $$("[data-theme-toggle]").forEach((b) => b.addEventListener("click", toggleTheme));
+    $$("[data-home]").forEach((b) => b.addEventListener("click", goHome));
+  }
+
+  /* ---- dark mode ---- */
+  const THEME_KEY = "littletalkers.theme";
+  let dark = false;
+  function applyTheme() { document.documentElement.classList.toggle("dark", dark); }
+  function toggleTheme() { dark = !dark; try { localStorage.setItem(THEME_KEY, dark ? "1" : "0"); } catch (e) {} applyTheme(); render(); }
+  function ThemeBtn() { return `<button class="icon-btn" data-theme-toggle title="${dark ? t("darkOff") : t("darkOn")}">${dark ? I.sun : I.moon}</button>`; }
+
+  function goHome() {
+    const s = getSession(); state.navOpen = false;
+    if (s && s.role === "therapist") { state.route = "dashboard"; state.patientId = null; }
+    render();
   }
 
   /* ---------------- Utilities ---------------- */
@@ -384,6 +450,16 @@
   const today = () => new Date().toISOString().slice(0, 10);
   const isUpcoming = (d) => d >= today();
   const genderText = (v) => v === "זכר" ? t("gMale") : v === "נקבה" ? t("gFemale") : (v || "—");
+  /* avatar markup: photo if uploaded, else colored initials */
+  function ava(entity, size) {
+    if (!entity) return `<div class="ava ${size}"></div>`;
+    if (entity.avatar) return `<div class="ava ${size} has-img" style="background-image:url('${entity.avatar}')"></div>`;
+    return `<div class="ava ${size} ${avaClass(entity.id)}">${esc(initials(entity.name))}</div>`;
+  }
+  function avaEditable(entity, size, type) {
+    return `<div class="ava-wrap">${ava(entity, size)}<button class="ava-cam" data-avatar-upload="${type}|${entity.id}" title="${t("changePhoto")}">${I.camera}</button></div>`;
+  }
+  const req = (label) => `${label} <span class="req">*</span>`;
   function fmtDate(d) { if (!d) return "—"; try { return new Intl.DateTimeFormat(loc(), { year: "numeric", month: "long", day: "numeric" }).format(new Date(d)); } catch (e) { return d; } }
   function fmtDateTime(ts) { if (!ts) return "—"; try { return new Intl.DateTimeFormat(loc(), { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(ts)); } catch (e) { return ts; } }
   function fmtTime(ts) { try { return new Intl.DateTimeFormat(loc(), { hour: "2-digit", minute: "2-digit" }).format(new Date(ts)); } catch (e) { return ""; } }
@@ -395,9 +471,9 @@
      ============================================================ */
   const DB_KEY = "littletalkers.db.v3";
   const SESSION_KEY = "littletalkers.session.v3";
-  const ALL_PERMS = ["viewAll", "managePatients", "manageRecordings", "chat"];
-  const fullPerms = () => ({ viewAll: true, managePatients: true, manageRecordings: true, chat: true });
-  const PERM_KEY = { viewAll: "permViewAll", managePatients: "permManage", manageRecordings: "permRec", chat: "permChat" };
+  const ALL_PERMS = ["viewAll", "managePatients", "manageNotes", "manageSessions", "manageFiles", "manageRecordings", "chat", "viewReports", "viewLog"];
+  const fullPerms = () => { const o = {}; ALL_PERMS.forEach((k) => o[k] = true); return o; };
+  const PERM_KEY = { viewAll: "permViewAll", managePatients: "permManage", manageNotes: "permNotes", manageSessions: "permSessions", manageFiles: "permFiles", manageRecordings: "permRec", chat: "permChat", viewReports: "permReports", viewLog: "permLog" };
 
   function seed() {
     const doctors = [
@@ -420,7 +496,7 @@
         ],
         files: [{ id: uid(), name: "דוח_הערכה_ראשוני.pdf", size: 248000, date: "2024-05-06" }],
         recordings: [],
-        chat: [{ id: uid(), ts: "2026-06-24T18:20:00", from: "parent", senderName: "ח׳אלד עבדאללה", text: "שלום ד״ר, אחמד תרגל היטב בבית השבוע.", read: true }],
+        chat: [{ id: uid(), ts: new Date(Date.now() - 3 * 3600 * 1000).toISOString(), from: "parent", senderName: "ח׳אלד עבדאללה", text: "שלום ד״ר, אחמד תרגל היטב בבית השבוע.", read: false }],
       }),
       mkPatient({
         name: "ליאן מוחמד", age: 5, gender: "נקבה", birthDate: "2020-11-03", guardian: "מוחמד סעיד", phone: "0559876543",
@@ -468,8 +544,19 @@
   }
   function normalize() {
     DB.doctors = DB.doctors || []; DB.patients = DB.patients || []; DB.logs = DB.logs || [];
-    DB.doctors.forEach((d) => { if (!d.permissions) d.permissions = fullPerms(); });
-    DB.patients.forEach((p) => { p.recordings = p.recordings || []; p.chat = p.chat || []; p.sessions = p.sessions || []; p.files = p.files || []; p.notes = p.notes || []; });
+    DB.doctors.forEach((d) => { if (!d.permissions) d.permissions = fullPerms(); ALL_PERMS.forEach((k) => { if (d.permissions[k] == null) d.permissions[k] = true; }); if (d.avatar == null) d.avatar = ""; if (d.bio == null) d.bio = ""; if (d.phone == null) d.phone = ""; if (d.age == null) d.age = ""; if (d.removed == null) d.removed = false; });
+    DB.patients.forEach((p) => { p.recordings = p.recordings || []; p.chat = p.chat || []; p.sessions = p.sessions || []; p.files = p.files || []; p.notes = p.notes || []; if (p.avatar == null) p.avatar = ""; if (p.removed == null) p.removed = false; });
+  }
+  /* chat resets every 24h — older messages already live in the activity log */
+  function pruneChats() {
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+    let changed = false;
+    DB.patients.forEach((p) => {
+      const before = p.chat.length;
+      p.chat = p.chat.filter((m) => { const ts = Date.parse(m.ts); return isNaN(ts) || ts >= cutoff; });
+      if (p.chat.length !== before) changed = true;
+    });
+    if (changed) saveDB();
   }
   function saveDB() { try { localStorage.setItem(DB_KEY, JSON.stringify(DB)); } catch (e) {} }
   function getSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch (e) { return null; } }
@@ -477,11 +564,14 @@
 
   const getPatient = (id) => DB.patients.find((p) => p.id === id);
   const getDoctor = (id) => DB.doctors.find((d) => d.id === id);
+  const activeDoctors = () => DB.doctors.filter((d) => !d.removed);
   const currentDoctor = () => { const s = getSession(); return s && s.role === "therapist" ? getDoctor(s.doctorId) : null; };
   const doctorName = (id) => { const d = getDoctor(id); return d ? d.name : "—"; };
 
   function can(perm) { const d = currentDoctor(); if (!d) return false; if (d.role === "main") return true; return !!(d.permissions && d.permissions[perm]); }
-  function visiblePatients() { const d = currentDoctor(); if (!d) return DB.patients; if (d.role === "main" || (d.permissions && d.permissions.viewAll)) return DB.patients; return DB.patients.filter((p) => p.doctorId === d.id); }
+  const activePatients = () => DB.patients.filter((p) => !p.removed);
+  function visiblePatients() { const d = currentDoctor(); const base = activePatients(); if (!d) return base; if (d.role === "main" || (d.permissions && d.permissions.viewAll)) return base; return base.filter((p) => p.doctorId === d.id); }
+  function removedPatients() { const d = currentDoctor(); const base = DB.patients.filter((p) => p.removed); if (!d || d.role === "main" || (d.permissions && d.permissions.viewAll)) return base; return base.filter((p) => p.doctorId === d.id); }
 
   function logEvent(action, opts) {
     opts = opts || {};
@@ -492,7 +582,8 @@
     if (DB.logs.length > 500) DB.logs.length = 500;
   }
 
-  const doctorUnread = () => visiblePatients().reduce((n, p) => n + p.chat.filter((m) => m.from === "parent" && !m.read).length, 0);
+  const myChatPatients = () => { const d = currentDoctor(); if (!d) return []; return DB.patients.filter((p) => !p.removed && p.doctorId === d.id); };
+  const doctorUnread = () => myChatPatients().reduce((n, p) => n + p.chat.filter((m) => m.from === "parent" && !m.read).length, 0);
   const parentUnread = (p) => p.chat.filter((m) => m.from === "doctor" && !m.read).length;
 
   /* ---------------- App state ---------------- */
@@ -501,6 +592,13 @@
     logF: { doctor: "", kind: "", search: "" }, sesF: { doctor: "", patient: "", search: "" },
     repF: { patient: "", doctor: "", search: "" }, recF: { patient: "", doctor: "", search: "" }, docSearch: "" });
   let state = freshState();
+  let idleTimer = null, idleLoggedOut = false;
+  const IDLE_MS = 5 * 60 * 1000;
+  function resetIdle() {
+    if (idleTimer) clearTimeout(idleTimer);
+    if (!getSession()) return;
+    idleTimer = setTimeout(() => { if (getSession()) { setSession(null); idleLoggedOut = true; state = freshState(); render(); } }, IDLE_MS);
+  }
 
   function toast(msg, type) {
     const root = $("#toast-root");
@@ -517,6 +615,7 @@
      ============================================================ */
   function render() {
     applyLangAttrs();
+    pruneChats();
     const app = $("#app");
     const session = getSession();
     if (!session) { app.innerHTML = LoginView(); afterLogin(); }
@@ -525,6 +624,7 @@
       app.innerHTML = TherapistShell(); afterTherapist();
     } else { app.innerHTML = ParentShell(session); afterParent(); }
     bindLangSwitch();
+    resetIdle();
   }
 
   /* ============================================================
@@ -544,11 +644,12 @@
         <svg class="brain-art" viewBox="0 0 200 200" fill="#c9bdf0" opacity=".6"><path d="M100 30c30 0 50 20 55 45 8 5 12 14 8 24-3 8-10 12-18 12-6 14-22 22-45 22s-39-8-45-22c-8 0-15-4-18-12-4-10 0-19 8-24 5-25 25-45 55-45z"/></svg>
       </aside>
       <div class="login-panel">
-        <div class="login-topbar">${LangSwitcher()}</div>
+        <div class="login-topbar">${ThemeBtn()}${LangSwitcher()}</div>
         <div class="login-card">
           <div style="margin-bottom:30px">${Brand("subLogin")}</div>
           <h2>${t("welcomeBack")}</h2>
           <p class="sub">${t("loginSub")}</p>
+          ${idleLoggedOut ? `<div class="idle-banner">${I.clock} ${t("idleLogout")}</div>` : ""}
           <div class="seg">
             <button data-role="therapist" class="${r === "therapist" ? "on" : ""}">${I.stetho} ${t("roleTher")}</button>
             <button data-role="parent" class="${r === "parent" ? "on" : ""}">${I.users} ${t("roleParent")}</button>
@@ -568,14 +669,15 @@
     </div>`;
   }
 
-  function Brand(subKey) {
-    return `<div class="logo">
+  function Brand(subKey, home) {
+    return `<div class="logo${home ? " logo-link" : ""}"${home ? ` data-home title="${t("goHome")}"` : ""}>
       <div class="logo-mark">${I.logo}</div>
       <div class="logo-text"><strong>Little Talkers</strong><span>${t(subKey)}</span></div>
     </div>`;
   }
 
   function afterLogin() {
+    idleLoggedOut = false;
     $$("[data-role]").forEach((b) => b.addEventListener("click", () => { state.loginRole = b.dataset.role; render(); }));
     const eye = $("[data-eye]");
     if (eye) eye.addEventListener("click", () => { const inp = eye.previousElementSibling; const show = inp.type === "password"; inp.type = show ? "text" : "password"; eye.innerHTML = show ? I.eyeOff : I.eye; });
@@ -584,11 +686,11 @@
       e.preventDefault();
       const u = form.username.value.trim(); const p = form.password.value;
       if (state.loginRole === "therapist") {
-        const doc = DB.doctors.find((d) => d.username === u && d.password === p);
+        const doc = DB.doctors.find((d) => d.username === u && d.password === p && !d.removed);
         if (doc) { setSession({ role: "therapist", doctorId: doc.id }); state.route = "dashboard"; render(); return; }
       } else {
         const pt = DB.patients.find((x) => x.parentUsername === u && x.parentPassword === p);
-        if (pt) { setSession({ role: "parent", patientId: pt.id }); render(); return; }
+        if (pt) { setSession({ role: "parent", patientId: pt.id }); logEvent(t("aLogin"), { actorName: (pt.guardian || t("lblParent")) + " (" + ti("parentOf", pt.name) + ")", patientName: pt.name, patientId: pt.id, kind: "info" }); saveDB(); render(); return; }
       }
       $("#login-error").innerHTML = `<div class="form-error">${t("errLogin")}</div>`;
     });
@@ -603,15 +705,23 @@
 
   function Sidebar() {
     const doc = currentDoctor(); const route = state.route;
-    const items = [["dashboard", I.home, "nDash"], ["patients", I.users, "nPatients"], ["sessions", I.calendar, "nSessions"], ["recordings", I.video, "nRecordings"], ["reports", I.report, "nReports"], ["log", I.history, "nLog"]];
+    // important first, less-used admin items at the bottom
+    const items = [["dashboard", I.home, "nDash"], ["myprofile", I.user, "nMyProfile"]];
+    if (can("managePatients")) items.push(["add", I.userPlus, "nAdd"]);
+    items.push(["patients", I.users, "nPatients"]);
+    items.push(["sessions", I.calendar, "nSessions"]);
+    items.push(["recordings", I.video, "nRecordings"]);
+    if (can("viewReports")) items.push(["reports", I.report, "nReports"]);
+    if (can("viewLog")) items.push(["log", I.history, "nLog"]);
     if (doc && doc.role === "main") items.push(["doctors", I.stetho, "nDoctors"]);
-    items.push(["add", I.userPlus, "nAdd"]);
+    if (can("managePatients")) items.push(["removed", I.trash, "nRemoved"]);
     const active = (key) => route === key || (key === "patients" && route === "profile");
     return `
     <aside class="sidebar">
-      ${Brand("subTher")}
+      <button class="icon-btn nav-close" data-close-nav title="${t("close")}">${I.x}</button>
+      ${Brand("subTher", true)}
       <div class="sidebar-user">
-        <div class="ava md ${avaClass(doc.id)}">${esc(initials(doc.name))}</div>
+        ${ava(doc, "md")}
         <div class="meta"><strong>${esc(doc.name)}</strong><span>${esc(doc.title)}${doc.role === "main" ? " · " + t("roleMain") : ""}</span></div>
       </div>
       <nav class="nav">
@@ -625,7 +735,7 @@
   function Topbar() {
     const doc = currentDoctor();
     const unread = can("chat") ? doctorUnread() : 0;
-    const titles = { dashboard: "nDash", patients: "nPatients", sessions: "nSessions", recordings: "nRecordings", reports: "nReports", log: "nLog", doctors: "nDoctors", profile: "titleProfile" };
+    const titles = { dashboard: "nDash", patients: "nPatients", sessions: "nSessions", recordings: "nRecordings", reports: "nReports", log: "nLog", doctors: "nDoctors", removed: "nRemoved", myprofile: "nMyProfile", profile: "titleProfile" };
     return `
     <div class="topbar">
       <div style="display:flex;align-items:center;gap:12px">
@@ -634,9 +744,10 @@
       </div>
       <div class="right">
         <span class="greet">${t("hello")} <b>${esc(doc.name)}</b></span>
+        ${ThemeBtn()}
         ${LangSwitcher()}
         ${can("chat") ? `<button class="icon-btn bell" data-inbox>${I.bell}${unread ? `<span class="count">${unread}</span>` : `<span class="dot"></span>`}</button>` : ""}
-        <div class="ava md ${avaClass(doc.id)}">${esc(initials(doc.name))}</div>
+        ${ava(doc, "md")}
       </div>
     </div>`;
   }
@@ -657,6 +768,8 @@
       case "reports": c.innerHTML = ReportsView(); break;
       case "log": c.innerHTML = LogView(); break;
       case "doctors": c.innerHTML = DoctorsView(); break;
+      case "removed": c.innerHTML = RemovedView(); break;
+      case "myprofile": c.innerHTML = MyProfileView(); break;
       case "profile": c.innerHTML = ProfileView(getPatient(state.patientId), false); break;
       default: c.innerHTML = DashboardView();
     }
@@ -671,7 +784,7 @@
     }));
     const lo = $("[data-logout]"); if (lo) lo.addEventListener("click", () => { setSession(null); state = freshState(); render(); });
     const tg = $("[data-toggle-nav]"); if (tg) tg.addEventListener("click", () => { state.navOpen = !state.navOpen; render(); });
-    const sc = $("[data-close-nav]"); if (sc) sc.addEventListener("click", () => { state.navOpen = false; render(); });
+    $$("[data-close-nav]").forEach((sc) => sc.addEventListener("click", () => { state.navOpen = false; render(); }));
   }
 
   /* ============================================================
@@ -729,7 +842,7 @@
 
     const rows = shown.map((p) => `
       <tr data-row="${p.id}">
-        <td><div class="cell-name"><div class="ava md ${avaClass(p.id)}">${esc(initials(p.name))}</div>
+        <td><div class="cell-name">${ava(p, "md")}
           <div><div class="nm">${esc(p.name)}</div><div class="sb">${esc(p.guardian || "")}</div></div></div></td>
         <td>${esc(p.age)} ${t("years")}</td>
         <td><span class="tag">${esc(p.diagnosis)}</span></td>
@@ -807,7 +920,7 @@
 
   function SessionsView() {
     const f = state.sesF;
-    const editable = can("managePatients");
+    const editable = can("manageSessions");
     let list = allSessions();
     if (f.doctor) list = list.filter((s) => s.doctorId === f.doctor);
     if (f.patient) list = list.filter((s) => s.patientId === f.patient);
@@ -856,7 +969,7 @@
         ${totalRecs === 0
           ? `<div class="empty">${I.video}<p>${q || f.patient || f.doctor ? t("emptyRecMatch") : t("emptyNoRec")}</p></div>`
           : groups.map((g) => `<div class="group">
-              <div class="group-head" data-go-patient="${g.p.id}"><div class="ava md ${avaClass(g.p.id)}">${esc(initials(g.p.name))}</div>
+              <div class="group-head" data-go-patient="${g.p.id}">${ava(g.p, "md")}
                 <div><div class="gn">${esc(g.p.name)}</div><div class="gs">${ti("recCount", g.recs.length)}</div></div></div>
               <div class="rec-list">${g.recs.map((r) => recordingItem(g.p, r, editable)).join("")}</div></div>`).join("")}
       </div>`;
@@ -866,7 +979,7 @@
     return `<div class="rec-item">
       <div class="rec-ico">${I.video}</div>
       <div class="rec-main"><div class="rn">${esc(r.title || t("recDefault"))}</div><div class="rs">${I.calendar} ${fmtDate(r.date)}</div></div>
-      ${r.url ? `<a class="btn btn-soft btn-sm" href="${esc(r.url)}" target="_blank" rel="noopener">${I.play} ${t("btnWatch")}</a>` : ""}
+      ${r.url ? `<a class="btn btn-soft btn-sm" href="${esc(r.url)}" target="_blank" rel="noopener" data-watchlog="${p.id}|${esc(r.id)}">${I.play} ${t("btnWatch")}</a>` : ""}
       ${editable ? `<button class="icon-btn danger" data-del-rec="${p.id}|${r.id}" title="${t("ttDelete")}">${I.trash}</button>` : ""}
     </div>`;
   }
@@ -889,7 +1002,7 @@
         ${total === 0
           ? `<div class="empty">${I.file}<p>${q || f.patient || f.doctor ? t("emptyFileMatch") : t("emptyNoFiles")}</p></div>`
           : groups.map((g) => `<div class="group">
-              <div class="group-head" data-go-patient="${g.p.id}"><div class="ava md ${avaClass(g.p.id)}">${esc(initials(g.p.name))}</div>
+              <div class="group-head" data-go-patient="${g.p.id}">${ava(g.p, "md")}
                 <div><div class="gn">${esc(g.p.name)}</div><div class="gs">${ti("filesCount", g.files.length)} · ${esc(doctorName(g.p.doctorId))}</div></div></div>
               <div class="file-list">${g.files.map((x) => `
                 <div class="file-item"><div class="file-ico">${I.file}</div>
@@ -932,18 +1045,19 @@
     const counts = {};
     DB.patients.forEach((p) => counts[p.doctorId] = (counts[p.doctorId] || 0) + 1);
     const q = state.docSearch.trim();
-    let docs = DB.doctors.slice();
-    if (q) docs = docs.filter((d) => d.name.includes(q) || d.username.includes(q));
+    let docs = activeDoctors();
+    let removed = DB.doctors.filter((d) => d.removed);
+    if (q) { docs = docs.filter((d) => d.name.includes(q) || d.username.includes(q)); removed = removed.filter((d) => d.name.includes(q) || d.username.includes(q)); }
     return `
       <div class="card">
-        <div class="card-head"><h3>${t("nDoctors")} <span class="count">${DB.doctors.length}</span></h3>
+        <div class="card-head"><h3>${t("nDoctors")} <span class="count">${docs.length}</span></h3>
           <div class="tools"><div class="search">${I.search}<input data-docsearch placeholder="${t("phSearchDoctor")}" value="${esc(state.docSearch)}" /></div>
             <button class="btn btn-primary" data-add-doctor>${I.plus} ${t("btnAddDoctor")}</button></div></div>
         <div class="doctor-list">
           ${docs.map((d) => {
             const perms = d.role === "main" ? ALL_PERMS : ALL_PERMS.filter((k) => d.permissions && d.permissions[k]);
             return `<div class="doctor-item">
-              <div class="ava md ${avaClass(d.id)}">${esc(initials(d.name))}</div>
+              ${ava(d, "md")}
               <div class="doctor-main">
                 <div class="dn">${esc(d.name)} ${d.role === "main" ? `<span class="role-tag main">${I.shield} ${t("roleMain")}</span>` : `<span class="role-tag">${t("roleDoc")}</span>`}</div>
                 <div class="ds">${esc(d.title)} · ${t("lblUser")}: <b>${esc(d.username)}</b> · ${counts[d.id] || 0} ${t("unitPatients")}</div>
@@ -954,7 +1068,128 @@
             </div>`;
           }).join("")}
         </div>
+      </div>
+      ${removed.length ? `<div class="card" style="margin-top:20px">
+        <div class="subhead"><h3>${t("removedDoctors")}</h3><span class="count">${removed.length}</span></div>
+        <div class="doctor-list">${removed.map((d) => `
+          <div class="doctor-item" style="opacity:.75">
+            ${ava(d, "md")}
+            <div class="doctor-main"><div class="dn">${esc(d.name)}</div>
+              <div class="ds">${esc(d.title)} · ${t("lblUser")}: <b>${esc(d.username)}</b>${d.removedAt ? ` · ${t("removedOn")} ${fmtDate(d.removedAt)}` : ""}</div></div>
+            <div class="row-actions">
+              <button class="btn btn-soft btn-sm" data-restore-doc="${d.id}">${I.history} ${t("restore")}</button>
+              <button class="icon-btn danger" data-perma-doc="${d.id}" title="${t("deleteForever")}">${I.trash}</button>
+            </div>
+          </div>`).join("")}</div>
+      </div>` : ""}`;
+  }
+
+  /* ============================================================
+     REMOVED PATIENTS (soft delete / restore)
+     ============================================================ */
+  function RemovedView() {
+    if (!can("managePatients")) return `<div class="card"><div class="empty">${I.shield}<p>${t("onlyMain")}</p></div></div>`;
+    const list = removedPatients().slice().sort((a, b) => (b.removedAt || "").localeCompare(a.removedAt || ""));
+    return `
+      <div class="card">
+        <div class="card-head"><h3>${t("nRemoved")} <span class="count">${list.length}</span></h3></div>
+        ${list.length === 0 ? `<div class="empty">${I.trash}<p>${t("emptyRemoved")}</p></div>`
+          : `<div class="doctor-list">${list.map((p) => `
+            <div class="doctor-item">
+              ${ava(p, "md")}
+              <div class="doctor-main"><div class="dn">${esc(p.name)}</div>
+                <div class="ds">${esc(p.diagnosis)} · ${esc(doctorName(p.doctorId))}${p.removedAt ? ` · ${t("removedOn")} ${fmtDate(p.removedAt)}` : ""}</div></div>
+              <div class="row-actions">
+                <button class="btn btn-soft btn-sm" data-restore="${p.id}">${I.history} ${t("restore")}</button>
+                <button class="icon-btn danger" data-perma="${p.id}" title="${t("deleteForever")}">${I.trash}</button>
+              </div>
+            </div>`).join("")}</div>`}
       </div>`;
+  }
+
+  /* ============================================================
+     DOCTOR SELF-PROFILE (journey, info, photo)
+     ============================================================ */
+  function MyProfileView() {
+    const d = currentDoctor(); if (!d) return "";
+    return `
+      <div class="card">
+        <div class="profile-hero">
+          ${avaEditable(d, "lg", "doctor")}
+          <div class="info"><h2>${esc(d.name)}</h2>
+            <div class="meta-row">
+              <span>${I.stetho} ${esc(d.title)}</span>
+              <span>${I.phone2} ${esc(d.phone || "—")}</span>
+              ${d.age ? `<span>${I.cake} ${esc(d.age)} ${t("years")}</span>` : ""}
+              <span>${I.user} ${t("lblUser")}: ${esc(d.username)}</span>
+              ${d.role === "main" ? `<span>${I.shield} ${t("roleMain")}</span>` : ""}
+            </div></div>
+          <div class="profile-actions"><button class="btn btn-primary" data-edit-myprofile>${I.edit} ${t("myProfileEdit")}</button></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:20px">
+        <div class="subhead"><h3>${t("bioLabel")}</h3></div>
+        ${d.bio ? `<div class="plan-box bio-box">${esc(d.bio)}</div>` : `<div class="plan-box empty-plan">${t("noBio")}</div>`}
+      </div>`;
+  }
+
+  function openMyProfileModal() {
+    const d = currentDoctor(); if (!d) return;
+    const html = `<div class="modal"><div class="modal-head"><h3>${t("myProfileEdit")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+      <form id="mp-form"><div class="modal-body" style="text-align:center">
+        <div style="display:flex;justify-content:center;margin-bottom:14px">${avaEditable(d, "lg", "doctor")}</div>
+        <div style="text-align:start">
+          ${ctl(t("fDocName"), `<input name="name" required value="${esc(d.name || "")}" placeholder="${t("phDocName")}" />`)}
+          <div class="grid-2">${ctl(t("lblPhone"), `<input name="phone" value="${esc(d.phone || "")}" placeholder="05xxxxxxxx" />`)}${ctl(t("cAge"), `<input name="age" type="number" min="18" max="100" value="${esc(d.age || "")}" />`)}</div>
+          ${ctl(t("fTitleRole"), `<input name="title" value="${esc(d.title || "")}" placeholder="${t("phTitleRole")}" />`)}
+          <div class="field"><label>${t("bioLabel")}</label><div class="control"><textarea name="bio" style="min-height:130px" placeholder="${t("phBio")}">${esc(d.bio || "")}</textarea></div></div>
+        </div>
+      </div><div class="modal-foot"><button type="submit" class="btn btn-primary">${t("saveProfile")}</button><button type="button" class="btn btn-ghost" data-modal-close>${t("cancel")}</button></div></form></div>`;
+    const close = openModal(html);
+    bindAvatarUploads($("#modal-root"));
+    $("#mp-form").addEventListener("submit", (e) => { e.preventDefault(); const f = e.target; d.name = f.name.value.trim() || d.name; d.phone = f.phone.value.trim(); if (f.age.value) d.age = +f.age.value; d.title = f.title.value.trim() || d.title; d.bio = f.bio.value.trim(); logEvent(ti("aEditDoc", d.name), { kind: "perms" }); saveDB(); close(); render(); toast(t("tProfileSaved")); });
+  }
+
+  function openDoctorProfileModal(docId) {
+    const d = getDoctor(docId); if (!d) return;
+    const html = `<div class="modal"><div class="modal-head"><h3>${t("docProfileTitle")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
+      <div class="modal-body" style="text-align:center">
+        <div style="display:flex;justify-content:center;margin-bottom:10px">${ava(d, "lg")}</div>
+        <h3 style="margin:6px 0 2px">${esc(d.name)}</h3>
+        <p style="color:var(--text-soft);margin:0 0 12px">${esc(d.title)}</p>
+        <div class="meta-row" style="justify-content:center;margin-bottom:16px">
+          ${d.phone ? `<span>${I.phone2} ${esc(d.phone)}</span>` : ""}
+          ${d.age ? `<span>${I.cake} ${esc(d.age)} ${t("years")}</span>` : ""}
+          <span>${I.user} ${t("lblUser")}: ${esc(d.username)}</span>
+        </div>
+        <div style="text-align:start">${d.bio ? `<div class="plan-box bio-box">${esc(d.bio)}</div>` : `<div class="plan-box empty-plan">${t("noBio")}</div>`}</div>
+      </div>
+      <div class="modal-foot"><button class="btn btn-ghost" data-modal-close>${t("close")}</button></div></div>`;
+    openModal(html);
+  }
+
+  function bindAvatarUploads(root) {
+    $$("[data-avatar-upload]", root).forEach((btn) => btn.addEventListener("click", () => {
+      const [type, id] = btn.dataset.avatarUpload.split("|");
+      const input = document.createElement("input"); input.type = "file"; input.accept = "image/*";
+      input.onchange = () => {
+        const file = input.files && input.files[0]; if (!file) return;
+        if (file.size > 2 * 1024 * 1024) { toast(t("imgTooBig"), "err"); return; }
+        const r = new FileReader();
+        r.onload = () => {
+          const ent = type === "doctor" ? getDoctor(id) : getPatient(id); if (!ent) return;
+          ent.avatar = r.result;
+          const sess = getSession();
+          if (type === "patient") {
+            if (sess && sess.role === "parent") logEvent(t("aPhoto"), { actorName: (ent.guardian || t("lblParent")) + " (" + ti("parentOf", ent.name) + ")", patientName: ent.name, patientId: ent.id, kind: "patient" });
+            else logEvent(t("aPhoto"), { patientName: ent.name, patientId: ent.id, kind: "patient" });
+          } else logEvent(t("aPhoto"), { kind: "perms" });
+          saveDB(); render(); toast(t("photoUpdated"));
+        };
+        r.readAsDataURL(file);
+      };
+      input.click();
+    }));
   }
 
   /* ============================================================
@@ -963,8 +1198,11 @@
   function ProfileView(p, readonly) {
     if (!p) return `<div class="card"><div class="empty">${I.user}<p>—</p></div></div>`;
     const canEdit = !readonly && can("managePatients");
+    const canNotes = !readonly && can("manageNotes");
+    const canSessions = !readonly && can("manageSessions");
+    const canFiles = !readonly && can("manageFiles");
     const canRec = readonly ? false : can("manageRecordings");
-    const canChat = readonly ? true : can("chat");
+    const canChat = readonly ? true : (can("chat") && !!currentDoctor() && p.doctorId === currentDoctor().id);
     const notes = p.notes.slice().sort((a, b) => (b.date || "").localeCompare(a.date || ""));
     const sessions = p.sessions.slice().sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")));
     const upcoming = sessions.filter((s) => isUpcoming(s.date));
@@ -978,17 +1216,19 @@
     const heroActions = readonly
       ? `<div class="profile-actions">
            ${canChat ? `<button class="btn btn-primary" data-chat="${p.id}">${I.chat} ${t("actChatTher")}${parentUnread(p) ? ` <span class="ibadge">${parentUnread(p)}</span>` : ""}</button>` : ""}
+           <button class="btn btn-soft" data-doc-profile="${p.doctorId}">${I.stetho} ${t("meetTherapist")}</button>
            <button class="btn btn-soft" data-edit-parent="${p.id}">${I.edit} ${t("actEditDetails")}</button>
-           <span class="ro-badge">${I.eye} ${t("badgeReadonly")}</span></div>`
+           <span class="ro-badge editable">${I.user} ${t("badgeParent")}</span></div>`
       : `<div class="profile-actions">
            ${canChat ? `<button class="btn btn-soft" data-chat="${p.id}">${I.chat} ${t("actChat")}${unreadFromParent ? ` <span class="ibadge">${unreadFromParent}</span>` : ""}</button>` : ""}
-           ${canEdit ? `<button class="btn btn-soft" data-edit="${p.id}">${I.edit} ${t("ttEdit")}</button>
-           <button class="btn btn-primary" data-add-note="${p.id}">${I.plus} ${t("actNote")}</button>
-           <button class="btn btn-danger" data-remove="${p.id}">${I.trash} ${t("ttDelete")}</button>` : ""}
+           ${canEdit ? `<button class="btn btn-soft" data-edit="${p.id}">${I.edit} ${t("ttEdit")}</button>` : ""}
+           ${canNotes ? `<button class="btn btn-primary" data-add-note="${p.id}">${I.plus} ${t("actNote")}</button>` : ""}
+           ${canEdit ? `<button class="btn btn-danger" data-remove="${p.id}">${I.trash} ${t("ttDelete")}</button>` : ""}
          </div>`;
 
+    const heroAva = (readonly || canEdit) ? avaEditable(p, "lg", "patient") : ava(p, "lg");
     const heroHTML = `<div class="card"><div class="profile-hero">
-        <div class="ava lg ${avaClass(p.id)}">${esc(initials(p.name))}</div>
+        ${heroAva}
         <div class="info"><h2>${esc(p.name)}</h2>
           <div class="meta-row">
             <span>${I.cake} ${esc(p.age)} ${t("years")}</span>
@@ -1017,25 +1257,28 @@
         <div class="stack">
           <div class="card">
             <div class="subhead"><h3>${t("secInfo")}</h3></div>
-            <div class="info-list">
-              <div class="it"><div class="k">${t("lblParent")}</div><div class="v">${esc(p.guardian || "—")}</div></div>
-              <div class="it"><div class="k">${t("lblPhone")}</div><div class="v">${esc(p.phone || "—")}</div></div>
-              <div class="it"><div class="k">${t("cAge")}</div><div class="v">${esc(p.age)} ${t("years")}</div></div>
-              <div class="it"><div class="k">${t("lblBirth")}</div><div class="v">${p.birthDate ? fmtDate(p.birthDate) : "—"}</div></div>
-              <div class="it"><div class="k">${t("lblGender")}</div><div class="v">${genderText(p.gender)}</div></div>
-              <div class="it"><div class="k">${t("cDiagnosis")}</div><div class="v">${esc(p.diagnosis)}</div></div>
-              <div class="it"><div class="k">${t("cDoctor")}</div><div class="v">${esc(doc ? doc.name : "—")}</div></div>
+            <div class="info-grid">
+              ${[
+                [I.user, t("lblParent"), esc(p.guardian || "—")],
+                [I.phone2, t("lblPhone"), esc(p.phone || "—")],
+                [I.cake, t("cAge"), esc(p.age) + " " + t("years")],
+                [I.calendar, t("lblBirth"), p.birthDate ? fmtDate(p.birthDate) : "—"],
+                [I.user, t("lblGender"), genderText(p.gender)],
+                [I.activity, t("cDiagnosis"), esc(p.diagnosis)],
+                [I.stetho, t("cDoctor"), esc(doc ? doc.name : "—")],
+                [I.clock, t("lastSessionLbl"), fmtDate(p.lastSession)],
+              ].map(([ic, k, v]) => `<div class="info-row"><div class="info-ic">${ic}</div><div class="info-txt"><div class="k">${k}</div><div class="v">${v}</div></div></div>`).join("")}
             </div>
           </div>
 
           <div class="card">
             <div class="subhead"><h3>${t("secUpcoming")}</h3><span class="count">${upcoming.length}</span><span class="grow"></span>
-              ${canEdit ? `<button class="btn btn-soft btn-sm" data-add-session-for="${p.id}">${I.plus} ${t("btnScheduleShort")}</button>` : ""}</div>
+              ${canSessions ? `<button class="btn btn-soft btn-sm" data-add-session-for="${p.id}">${I.plus} ${t("btnScheduleShort")}</button>` : ""}</div>
             ${upcoming.length === 0 ? `<div class="empty">${I.calendar}<p>${t("emptyUpcomingP")}</p></div>`
               : `<div class="session-list">${upcoming.map((s) => `
                   <div class="session-item"><div class="date-chip"><b>${new Date(s.date).getDate()}</b><span>${monthShort(s.date)}</span></div>
                     <div class="session-main"><div class="st">${esc(s.title || t("sesDefault"))}</div><div class="ss">${I.clock} ${esc(s.time || "—")} · ${fmtDate(s.date)}</div></div>
-                    ${canEdit ? `<div class="row-actions">
+                    ${canSessions ? `<div class="row-actions">
                       <button class="icon-btn" data-edit-session="${p.id}|${s.id}" title="${t("ttEdit")}">${I.edit}</button>
                       <button class="icon-btn danger" data-del-session="${p.id}|${s.id}" title="${t("ttDelete")}">${I.trash}</button></div>` : ""}
                   </div>`).join("")}</div>`}
@@ -1050,11 +1293,11 @@ ${pastCard}
 
           <div class="card">
             <div class="subhead"><h3>${t("secNotes")}</h3><span class="count">${p.notes.length}</span><span class="grow"></span>
-              ${canEdit ? `<button class="btn btn-soft btn-sm" data-add-note="${p.id}">${I.plus} ${t("btnAdd")}</button>` : ""}</div>
+              ${canNotes ? `<button class="btn btn-soft btn-sm" data-add-note="${p.id}">${I.plus} ${t("btnAdd")}</button>` : ""}</div>
             ${notes.length === 0 ? `<div class="empty">${I.edit}<p>${t("emptyNotes")}</p></div>`
               : `<div class="timeline">${notes.map((n) => `
                   <div class="note-item"><div class="nh"><span class="date">${I.calendar} ${fmtDate(n.date)}</span>
-                    ${canEdit ? `<button class="icon-btn btn-sm del" data-del-note="${p.id}|${n.id}" title="${t("ttDelete")}">${I.trash}</button>` : ""}
+                    ${canNotes ? `<button class="icon-btn btn-sm del" data-del-note="${p.id}|${n.id}" title="${t("ttDelete")}">${I.trash}</button>` : ""}
                   </div><p>${esc(n.text)}</p></div>`).join("")}</div>`}
           </div>
         </div>
@@ -1077,13 +1320,13 @@ ${pastCard}
 
           <div class="card">
             <div class="subhead"><h3>${t("secFiles")}</h3><span class="count">${p.files.length}</span><span class="grow"></span>
-              ${canEdit ? `<button class="btn btn-soft btn-sm" data-upload="${p.id}">${I.upload} ${t("btnUpload")}</button>` : ""}</div>
+              ${canFiles ? `<button class="btn btn-soft btn-sm" data-upload="${p.id}">${I.upload} ${t("btnUpload")}</button>` : ""}</div>
             ${p.files.length === 0 ? `<div class="empty">${I.file}<p>${t("emptyFilesP")}</p></div>`
               : `<div class="file-list">${p.files.map((f) => `
                   <div class="file-item"><div class="file-ico">${I.file}</div>
                     <div class="file-meta"><div class="fn">${esc(f.name)}</div><div class="fs">${fmtSize(f.size)} · ${fmtDate(f.date)}</div></div>
                     <button class="icon-btn" data-dl="${p.id}|${f.id}" title="${t("ttDownload")}">${I.download}</button>
-                    ${canEdit ? `<button class="icon-btn danger" data-del-file="${p.id}|${f.id}" title="${t("ttDelete")}">${I.trash}</button>` : ""}
+                    ${canFiles ? `<button class="icon-btn danger" data-del-file="${p.id}|${f.id}" title="${t("ttDelete")}">${I.trash}</button>` : ""}
                   </div>`).join("")}</div>`}
           </div>
 
@@ -1139,11 +1382,23 @@ ${pastCard}
     $$("[data-add-doctor]").forEach((b) => b.addEventListener("click", () => openDoctorModal(null)));
     $$("[data-edit-doctor]").forEach((b) => b.addEventListener("click", () => openDoctorModal(b.dataset.editDoctor)));
     $$("[data-del-doctor]").forEach((b) => b.addEventListener("click", () => removeDoctor(b.dataset.delDoctor)));
+    $$("[data-restore-doc]").forEach((b) => b.addEventListener("click", () => restoreDoctor(b.dataset.restoreDoc)));
+    $$("[data-perma-doc]").forEach((b) => b.addEventListener("click", () => deleteDoctorForever(b.dataset.permaDoc)));
+    $$("[data-restore]").forEach((b) => b.addEventListener("click", () => restorePatient(b.dataset.restore)));
+    $$("[data-perma]").forEach((b) => b.addEventListener("click", () => deletePatientForever(b.dataset.perma)));
+    $$("[data-edit-myprofile]").forEach((b) => b.addEventListener("click", openMyProfileModal));
+    $$("[data-doc-profile]").forEach((b) => b.addEventListener("click", () => openDoctorProfileModal(b.dataset.docProfile)));
     bindDownloads();
+    bindAvatarUploads();
   }
 
   function bindDownloads() {
     $$("[data-dl]").forEach((b) => b.addEventListener("click", () => { const [pid, fid] = b.dataset.dl.split("|"); downloadFile(pid, fid); }));
+    $$("[data-watchlog]").forEach((a) => a.addEventListener("click", () => {
+      const sess = getSession(); if (!sess || sess.role !== "parent") return;
+      const [pid] = a.dataset.watchlog.split("|"); const p = getPatient(pid); if (!p) return;
+      logEvent(t("aWatchRec"), { actorName: (p.guardian || t("lblParent")) + " (" + ti("parentOf", p.name) + ")", patientName: p.name, patientId: p.id, kind: "recording" }); saveDB();
+    }));
   }
   function downloadFile(pid, fid) {
     const p = getPatient(pid); if (!p) return;
@@ -1186,40 +1441,55 @@ ${pastCard}
 
   function removePatient(pid) {
     const p = getPatient(pid); if (!p) return;
-    confirmDialog({ danger: true, title: t("delPatientTitle"), confirm: t("confirmYes"), message: ti("delPatientMsg", p.name) }, () => {
+    confirmDialog({ danger: true, title: t("archiveTitle"), confirm: t("confirmYes"), message: ti("archiveMsg", p.name) }, () => {
+      p.removed = true; p.removedAt = new Date().toISOString();
+      logEvent(t("aDelPatient"), { patientName: p.name, patientId: p.id, kind: "remove" });
+      saveDB(); state.route = "patients"; state.patientId = null; render(); toast(t("tArchived"));
+    });
+  }
+  function restorePatient(pid) {
+    const p = getPatient(pid); if (!p) return;
+    p.removed = false; logEvent(t("tRestored"), { patientName: p.name, patientId: p.id, kind: "patient" });
+    saveDB(); renderTherapistContent(); toast(t("tRestored"));
+  }
+  function deletePatientForever(pid) {
+    const p = getPatient(pid); if (!p) return;
+    confirmDialog({ danger: true, title: t("delForeverTitle"), confirm: t("deleteForever"), message: ti("delForeverMsg", p.name) }, () => {
       DB.patients = DB.patients.filter((x) => x.id !== pid);
       logEvent(t("aDelPatient"), { patientName: p.name, kind: "remove" });
-      saveDB(); state.route = "patients"; state.patientId = null; render(); toast(t("tPatientDeleted"));
+      saveDB(); renderTherapistContent(); toast(t("tPatientDeleted"));
     });
   }
 
   function openPatientModal(p) {
     if (!can("managePatients")) return;
     const editing = !!p; p = p || {};
-    const docOpts = DB.doctors.map((d) => `<option value="${d.id}" ${p.doctorId === d.id ? "selected" : ""}>${esc(d.name)}</option>`).join("");
+    const docOpts = activeDoctors().map((d) => `<option value="${d.id}" ${p.doctorId === d.id ? "selected" : ""}>${esc(d.name)}</option>`).join("");
     const html = `<div class="modal">
         <div class="modal-head"><h3>${editing ? t("mEditPatient") : t("mAddPatient")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
         <form id="patient-form"><div class="modal-body">
+            ${editing ? `<div style="display:flex;justify-content:center;margin-bottom:16px">${avaEditable(p, "lg", "patient")}</div>` : ""}
             <div class="grid-2">
-              ${ctl(t("fFullName"), `<input name="name" required value="${esc(p.name || "")}" placeholder="${t("phName")}" />`)}
-              ${ctl(t("cAge"), `<input name="age" type="number" min="1" max="18" required value="${esc(p.age || "")}" placeholder="7" />`)}
-              ${ctl(t("lblGender"), `<select name="gender"><option value="זכר" ${p.gender === "זכר" ? "selected" : ""}>${t("gMale")}</option><option value="נקבה" ${p.gender === "נקבה" ? "selected" : ""}>${t("gFemale")}</option></select>`)}
-              ${ctl(t("cDoctor"), `<select name="doctorId">${docOpts}</select>`)}
-              ${ctl(t("fBirth"), `<input name="birthDate" type="date" value="${esc(p.birthDate || "")}" />`)}
-              ${ctl(t("fGuardian"), `<input name="guardian" value="${esc(p.guardian || "")}" placeholder="${t("fGuardian")}" />`)}
-              ${ctl(t("lblPhone"), `<input name="phone" value="${esc(p.phone || "")}" placeholder="05xxxxxxxx" />`)}
+              ${ctl(req(t("fFullName")), `<input name="name" required value="${esc(p.name || "")}" placeholder="${t("phName")}" />`)}
+              ${ctl(req(t("cAge")), `<input name="age" type="number" min="1" max="18" required value="${esc(p.age || "")}" placeholder="7" />`)}
+              ${ctl(req(t("lblGender")), `<select name="gender"><option value="זכר" ${p.gender === "זכר" ? "selected" : ""}>${t("gMale")}</option><option value="נקבה" ${p.gender === "נקבה" ? "selected" : ""}>${t("gFemale")}</option></select>`)}
+              ${ctl(req(t("cDoctor")), `<select name="doctorId">${docOpts}</select>`)}
+              ${ctl(req(t("fBirth")), `<input name="birthDate" type="date" required value="${esc(p.birthDate || "")}" />`)}
+              ${ctl(req(t("fGuardian")), `<input name="guardian" required value="${esc(p.guardian || "")}" placeholder="${t("fGuardian")}" />`)}
+              ${ctl(req(t("lblPhone")), `<input name="phone" required value="${esc(p.phone || "")}" placeholder="05xxxxxxxx" />`)}
+              ${ctl(req(t("cDiagnosis")), `<input name="diagnosis" required value="${esc(p.diagnosis || "")}" placeholder="${t("phDiagnosis")}" />`)}
             </div>
-            ${ctl(t("cDiagnosis"), `<input name="diagnosis" required value="${esc(p.diagnosis || "")}" placeholder="${t("phDiagnosis")}" />`)}
             <div style="height:8px"></div>
             <div class="subhead"><h3 style="font-size:15px">${t("secParentLogin")}</h3></div>
             <div class="grid-2">
-              ${ctl(t("username"), `${I.user}<input name="parentUsername" required value="${esc(p.parentUsername || "")}" placeholder="username" />`)}
-              ${ctl(t("password"), `${I.lock}<input name="parentPassword" required value="${esc(p.parentPassword || "")}" placeholder="••••" />`)}
+              ${ctl(req(t("username")), `${I.user}<input name="parentUsername" required value="${esc(p.parentUsername || "")}" placeholder="username" />`)}
+              ${ctl(req(t("password")), `${I.lock}<input name="parentPassword" required value="${esc(p.parentPassword || "")}" placeholder="••••" />`)}
             </div>
           </div>
           <div class="modal-foot"><button type="submit" class="btn btn-primary">${editing ? t("btnSaveChanges") : t("btnAddPatient2")}</button><button type="button" class="btn btn-ghost" data-modal-close>${t("cancel")}</button></div>
         </form></div>`;
     const close = openModal(html);
+    bindAvatarUploads($("#modal-root"));
     $("#patient-form").addEventListener("submit", (e) => {
       e.preventDefault(); const f = e.target; const uname = f.parentUsername.value.trim();
       if (DB.patients.find((x) => x.parentUsername === uname && x.id !== p.id)) { toast(t("errParentUserExists"), "err"); return; }
@@ -1344,10 +1614,23 @@ ${pastCard}
 
   function removeDoctor(id) {
     const d = getDoctor(id); if (!d || d.role === "main") return;
-    const count = DB.patients.filter((p) => p.doctorId === id).length;
+    const count = DB.patients.filter((p) => p.doctorId === id && !p.removed).length;
     confirmDialog({ danger: true, title: t("delDoctorTitle"), confirm: t("confirmYes"), message: count ? ti("delDoctorMsgCount", count) : ti("delDoctorMsg", d.name) }, () => {
       const main = DB.doctors.find((x) => x.role === "main");
       DB.patients.forEach((p) => { if (p.doctorId === id) p.doctorId = main ? main.id : p.doctorId; });
+      d.removed = true; d.removedAt = new Date().toISOString();
+      logEvent(ti("aDelDoc", d.name), { kind: "doctor" });
+      saveDB(); renderTherapistContent(); toast(t("tDoctorDeleted"));
+    });
+  }
+  function restoreDoctor(id) {
+    const d = getDoctor(id); if (!d) return;
+    d.removed = false; logEvent(ti("aRestoreDoc", d.name), { kind: "doctor" });
+    saveDB(); renderTherapistContent(); toast(t("tDoctorRestored"));
+  }
+  function deleteDoctorForever(id) {
+    const d = getDoctor(id); if (!d || d.role === "main") return;
+    confirmDialog({ danger: true, title: t("delForeverTitle"), confirm: t("deleteForever"), message: ti("delDoctorMsg", d.name) }, () => {
       DB.doctors = DB.doctors.filter((x) => x.id !== id);
       logEvent(ti("aDelDoc", d.name), { kind: "doctor" });
       saveDB(); renderTherapistContent(); toast(t("tDoctorDeleted"));
@@ -1358,13 +1641,13 @@ ${pastCard}
      CHAT (two-way)
      ============================================================ */
   function openInboxModal() {
-    const list = visiblePatients().filter((p) => p.chat.length)
+    const list = myChatPatients().filter((p) => p.chat.length)
       .map((p) => ({ p, last: p.chat[p.chat.length - 1], unread: p.chat.filter((m) => m.from === "parent" && !m.read).length }))
       .sort((a, b) => (b.last.ts || "").localeCompare(a.last.ts || ""));
     const html = `<div class="modal"><div class="modal-head"><h3>${t("inboxTitle")} <span class="count">${list.length}</span></h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
         <div class="modal-body">${list.length === 0 ? `<div class="empty">${I.message}<p>${t("inboxEmpty")}</p></div>`
             : `<div class="inbox-list">${list.map((it) => `<button class="inbox-item" data-open-chat="${it.p.id}">
-                  <div class="ava md ${avaClass(it.p.id)}">${esc(initials(it.p.name))}</div>
+                  ${ava(it.p, "md")}
                   <div class="inbox-main"><div class="it-top"><b>${esc(it.p.guardian || t("lblParent"))}</b><span class="it-time">${fmtDateTime(it.last.ts)}</span></div>
                     <div class="it-prev">${esc(it.p.name)} · ${esc(it.last.text)}</div></div>
                   ${it.unread ? `<span class="ibadge">${it.unread}</span>` : ""}</button>`).join("")}</div>`}</div>
@@ -1402,7 +1685,7 @@ ${pastCard}
       const pp = getPatient(pid);
       const senderName = me === "doctor" ? currentDoctor().name : (pp.guardian || t("lblParent"));
       pp.chat.push({ id: uid(), ts: new Date().toISOString(), from: me, senderName, text, read: false });
-      if (me === "parent") logEvent(t("aChatMsg"), { actorName: senderName + " (" + ti("parentOf", pp.name) + ")", patientName: pp.name, patientId: pp.id, kind: "message" });
+      logEvent(t("chatLogLabel") + " — " + senderName + ": " + text, { doctor: getDoctor(pp.doctorId), patientName: pp.name, patientId: pp.id, kind: "message" });
       saveDB(); inp.value = ""; paint();
     });
     setTimeout(() => { const ci = $("#chat-input"); if (ci) ci.focus(); }, 50);
@@ -1417,8 +1700,8 @@ ${pastCard}
     const unread = parentUnread(p);
     return `
     <div class="shell ${state.navOpen ? "nav-open" : ""}"><div class="scrim" data-close-nav></div>
-      <aside class="sidebar">${Brand("subParent")}
-        <div class="sidebar-user"><div class="ava md ${avaClass(p.id)}">${esc(initials(p.name))}</div>
+      <aside class="sidebar"><button class="icon-btn nav-close" data-close-nav title="${t("close")}">${I.x}</button>${Brand("subParent", true)}
+        <div class="sidebar-user">${ava(p, "md")}
           <div class="meta"><strong>${esc(p.guardian || t("lblParent"))}</strong><span>${ti("chSubDoctor", p.name)}</span></div></div>
         <nav class="nav">
           <button class="nav-item active">${I.home}<span>${t("nMyChild")}</span></button>
@@ -1431,7 +1714,7 @@ ${pastCard}
         <div class="topbar"><div style="display:flex;align-items:center;gap:12px">
             <button class="icon-btn hamburger" data-toggle-nav>${I.menu}</button>
             <div class="page-title">${t("nMyChild")}</div></div>
-          <div class="right">${LangSwitcher()}
+          <div class="right">${ThemeBtn()}${LangSwitcher()}
             <button class="btn btn-soft btn-sm" data-chat="${p.id}">${I.chat} ${t("actChat")}${unread ? ` <span class="ibadge">${unread}</span>` : ""}</button>
             <span class="ro-badge">${I.eye} ${t("badgeReadonly")}</span></div></div>
         <div class="content" id="content">${ProfileView(p, true)}</div>
@@ -1443,19 +1726,23 @@ ${pastCard}
     bindShell();
     $$("[data-chat]").forEach((b) => b.addEventListener("click", () => openChatModal(b.dataset.chat)));
     $$("[data-edit-parent]").forEach((b) => b.addEventListener("click", () => openParentEditModal(b.dataset.editParent)));
+    $$("[data-doc-profile]").forEach((b) => b.addEventListener("click", () => openDoctorProfileModal(b.dataset.docProfile)));
     bindDownloads();
+    bindAvatarUploads();
   }
 
   function openParentEditModal(pid) {
     const p = getPatient(pid); if (!p) return;
     const html = `<div class="modal"><div class="modal-head"><h3>${t("mEditBasic")}</h3><button class="icon-btn" data-modal-close>${I.x}</button></div>
         <form id="pe-form"><div class="modal-body">
+          <div style="display:flex;justify-content:center;margin-bottom:16px">${avaEditable(p, "lg", "patient")}</div>
           ${ctl(t("fChildName"), `<input name="name" required value="${esc(p.name || "")}" placeholder="${t("fFullName")}" />`)}
           <div class="grid-2">${ctl(t("fPhoneNum"), `<input name="phone" value="${esc(p.phone || "")}" placeholder="05xxxxxxxx" />`)}${ctl(t("cAge"), `<input name="age" type="number" min="1" max="18" value="${esc(p.age || "")}" />`)}</div>
           ${ctl(t("fBirth"), `<input name="birthDate" type="date" value="${esc(p.birthDate || "")}" />`)}
           <div class="login-hint">${I.bulb} ${t("parentEditHint")}</div>
         </div><div class="modal-foot"><button type="submit" class="btn btn-primary">${t("save")}</button><button type="button" class="btn btn-ghost" data-modal-close>${t("cancel")}</button></div></form></div>`;
     const close = openModal(html);
+    bindAvatarUploads($("#modal-root"));
     $("#pe-form").addEventListener("submit", (e) => {
       e.preventDefault(); const f = e.target;
       p.name = f.name.value.trim(); p.phone = f.phone.value.trim();
@@ -1471,9 +1758,24 @@ ${pastCard}
      ============================================================ */
   loadDB();
   try { const sl = parseInt(localStorage.getItem(LANG_KEY)); if (!isNaN(sl) && sl >= 0 && sl < LANGS.length) L = sl; } catch (e) {}
+  try { dark = localStorage.getItem(THEME_KEY) === "1"; } catch (e) {}
+  applyTheme();
   const sess = getSession();
   if (sess && sess.role === "therapist") state.route = "dashboard";
   render();
+
+  // back-to-top button
+  const topBtn = document.createElement("button");
+  topBtn.id = "to-top"; topBtn.innerHTML = I.arrowUp; topBtn.title = t("toTop");
+  topBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  document.body.appendChild(topBtn);
+  const onScroll = () => topBtn.classList.toggle("show", window.scrollY > 300);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  // idle auto-logout (5 min)
+  ["mousemove", "mousedown", "keydown", "scroll", "touchstart", "click"].forEach((ev) => document.addEventListener(ev, resetIdle, { passive: true }));
+  resetIdle();
 
   window.LittleTalkersReset = function () { localStorage.removeItem(DB_KEY); localStorage.removeItem(SESSION_KEY); location.reload(); };
 })();
