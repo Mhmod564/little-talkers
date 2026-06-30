@@ -20,3 +20,16 @@ scratchpad/
 
 # Dependencies (in case tooling is added later)
 node_modules/
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Env files (secrets) — keep .env.example committed, never the real ones
+.env
+.env*.local
+
+# Load-test auth cookie (contains a live session token — never commit)
+scratch-auth-cookie.txt
