@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Icon } from "@/components/icons";
 import { sendMessage, markChatRead } from "@/app/actions/chat";
+import { createClient } from "@/lib/supabase/client";
 import { fmtTime } from "@/lib/format";
 import type { ChatMessage } from "@/lib/data/messages";
 import { useI18n, useToast } from "@/providers/hooks";
@@ -43,6 +44,66 @@ export function ChatPanel({
     if (hasUnread) markChatRead(patientId).then(() => router.refresh());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientId]);
+
+  // Live updates: stream the other party's new messages in without a refresh.
+  // My own messages are already shown optimistically, so we skip them here.
+  useEffect(() => {
+    const supabase = createClient();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    const onInsert = (payload: { new: Record<string, unknown> }) => {
+      const row = payload.new as {
+        id: string;
+        sender_role: "therapist" | "parent";
+        sender_id: string | null;
+        body: string;
+        read_at: string | null;
+        created_at: string;
+      };
+      if (row.sender_role === meRole) return; // my own echo
+      setMessages((cur) => {
+        if (cur.some((m) => m.id === row.id)) return cur; // dedupe
+        return [
+          ...cur,
+          {
+            id: row.id,
+            patient_id: patientId,
+            sender_role: row.sender_role,
+            sender_id: row.sender_id,
+            sender_name: headName, // the other participant in this 1:1 chat
+            body: row.body,
+            read_at: row.read_at,
+            created_at: row.created_at,
+          },
+        ];
+      });
+      markChatRead(patientId); // chat is open -> mark read
+    };
+
+    (async () => {
+      // Authenticate the realtime socket so RLS lets us receive this patient's
+      // messages (postgres_changes is filtered by the messages_select policy).
+      const { data } = await supabase.auth.getSession();
+      if (data.session) supabase.realtime.setAuth(data.session.access_token);
+      channel = supabase
+        .channel(`chat:${patientId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "messages",
+            filter: `patient_id=eq.${patientId}`,
+          },
+          onInsert,
+        )
+        .subscribe();
+    })();
+
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, [patientId, meRole, headName]);
 
   useEffect(() => {
     const el = bodyRef.current;
